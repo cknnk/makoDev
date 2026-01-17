@@ -3,6 +3,7 @@ package cz.kovalov.makoDev.data.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -16,9 +17,18 @@ public class User {
     private String username;
     private String password;
 
+    // gamef
     private int xp = 0;
     private int level = 1;
+    private int coins = 0; //maybe for the shop
+
+    // New: Anti-Burnout
+    private int dailyXpEarned = 0;
+    private LocalDate lastActiveDate;
 
     @OneToMany(mappedBy = "assignee")
     private List<Task> tasks;
+
+    @ManyToMany(mappedBy = "members")
+    private List<Project> projects;
 }
