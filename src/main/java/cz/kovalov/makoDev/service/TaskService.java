@@ -31,6 +31,31 @@ public class TaskService {
     }
 
     @Transactional
+    public void giveKudos(Long taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow();
+
+        // likes
+        task.setKudosCount(task.getKudosCount() + 1);
+
+        // 2. bonus
+        User author = task.getAssignee();
+        if (author != null) {
+            author.setXp(author.getXp() + 5);
+
+            //check for lvl up
+            int newLevel = 1 + (author.getXp() / 100); //maybe change xp needed from 100 to constantly raised (some formula?)
+            if (newLevel > author.getLevel()) {
+                author.setLevel(newLevel);
+                //  maybe add message when user levels up?
+            }
+
+        }
+
+        taskRepository.save(task);
+        userRepository.save(author);
+    }
+
+    @Transactional
     public void completeTask(Long taskId) {
         Task task = taskRepository.findById(taskId).orElseThrow();
 

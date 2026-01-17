@@ -51,6 +51,12 @@ public class DashboardController {
         return "redirect:/";
     }
 
+    @GetMapping("/task/{id}/kudos")
+    public String giveKudos(@PathVariable Long id) {
+        taskService.giveKudos(id);
+        return "redirect:/";
+    }
+
     @GetMapping("/task/{id}/done")
     public String completeTask(@PathVariable Long id) {
         taskService.completeTask(id);

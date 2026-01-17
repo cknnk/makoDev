@@ -76,7 +76,14 @@
                                 <div class="card-body p-2">
                                     <h6 class="card-title" th:text="${task.title}">Task</h6>
                                     <span class="badge bg-warning text-dark" th:text="${task.rewardXp} + ' XP'">XP</span>
-                                    <button class="btn btn-sm btn-light w-100 mt-1 border" style="font-size: 0.7rem;">👍 Kudos</button>
+                                    <a th:href="@{/task/{id}/kudos(id=${task.id})}" class="btn btn-sm btn-light w-100 mt-1 border position-relative">
+                                        👍 Kudos
+                                        <span th:if="${task.kudosCount > 0}"
+                                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                              th:text="${task.kudosCount}">
+                                            1
+                                        </span>
+                                    </a>
                                     <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-success btn-sm w-100 mt-1" style="font-size: 0.7rem;">Approve</a>
                                 </div>
                             </div>
