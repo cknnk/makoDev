@@ -4,9 +4,11 @@ import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
+import cz.kovalov.makoDev.service.TaskService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -15,10 +17,12 @@ public class DashboardController {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final TaskService taskService;
 
-    public DashboardController(TaskRepository taskRepository, UserRepository userRepository) {
+    public DashboardController(TaskRepository taskRepository, UserRepository userRepository, TaskService taskService) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.taskService = taskService;
     }
 
     @GetMapping("/")
@@ -33,5 +37,23 @@ public class DashboardController {
         model.addAttribute("tasks", tasks);
 
         return "index";
+    }
+
+    @GetMapping("/task/{id}/start")
+    public String startTask(@PathVariable Long id) {
+        taskService.startTask(id);
+        return "redirect:/"; // Перезагружаем страницу
+    }
+
+    @GetMapping("/task/{id}/review")
+    public String reviewTask(@PathVariable Long id) {
+        taskService.sendToReview(id);
+        return "redirect:/";
+    }
+
+    @GetMapping("/task/{id}/done")
+    public String completeTask(@PathVariable Long id) {
+        taskService.completeTask(id);
+        return "redirect:/";
     }
 }

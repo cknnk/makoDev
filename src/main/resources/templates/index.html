@@ -43,7 +43,7 @@
                                         <small class="badge bg-secondary" th:text="${task.rewardXp} + ' XP'">50 XP</small>
                                         <small class="text-muted">ID: <span th:text="${task.id}">1</span></small>
                                     </div>
-                                    <a href="#" class="btn btn-outline-primary btn-sm w-100 mt-2" style="font-size: 0.7rem;">Start -></a>
+                                    <a th:href="@{/task/{id}/start(id=${task.id})}" class="btn btn-outline-primary btn-sm w-100 mt-2" style="font-size: 0.7rem;">Start -></a>
                                 </div>
                             </div>
                         </div>
@@ -59,8 +59,8 @@
                                     <h6 class="card-title" th:text="${task.title}">Task</h6>
                                     <span class="badge bg-info text-dark" th:text="${task.rewardXp} + ' XP'">XP</span>
                                     <div class="d-flex gap-1 mt-2">
-                                        <a href="#" class="btn btn-outline-warning btn-sm w-50" style="font-size: 0.6rem;">Review</a>
-                                        <a href="#" class="btn btn-outline-success btn-sm w-50" style="font-size: 0.6rem;">Done</a>
+                                        <a th:href="@{/task/{id}/review(id=${task.id})}" class="btn btn-outline-warning btn-sm w-50" style="font-size: 0.6rem;">Review</a>
+                                        <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-outline-success btn-sm w-50" style="font-size: 0.6rem;">Done</a>
                                     </div>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                                     <h6 class="card-title" th:text="${task.title}">Task</h6>
                                     <span class="badge bg-warning text-dark" th:text="${task.rewardXp} + ' XP'">XP</span>
                                     <button class="btn btn-sm btn-light w-100 mt-1 border" style="font-size: 0.7rem;">👍 Kudos</button>
-                                    <a href="#" class="btn btn-success btn-sm w-100 mt-1" style="font-size: 0.7rem;">Approve</a>
+                                    <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-success btn-sm w-100 mt-1" style="font-size: 0.7rem;">Approve</a>
                                 </div>
                             </div>
                         </div>
