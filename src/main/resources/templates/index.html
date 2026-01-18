@@ -295,12 +295,10 @@
         });
     }
 
-    // Логика открытия модального окна (Updated)
+    // logic of opening new window
     const taskModal = new bootstrap.Modal(document.getElementById('universalTaskModal'));
 
-    // Теперь принимаем 'element' (кнопку), а не кучу переменных
     function openTaskModal(element) {
-        // Читаем данные из data-атрибутов кнопки
         const title = element.getAttribute('data-title');
         const desc = element.getAttribute('data-desc');
         const xp = element.getAttribute('data-xp');
