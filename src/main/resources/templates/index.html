@@ -3,174 +3,317 @@
 <head>
     <title>DevQuest Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background: #fff; border-right: 1px solid #dee2e6; }
+        .avatar-circle { width: 40px; height: 40px; background-color: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .task-card { border-left: 4px solid transparent; }
+        .extra-task { display: none; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <div class="container-fluid">
+        <button class="btn btn-outline-secondary btn-sm text-light border-0">
+            <i class="bi bi-gear-fill"></i> Settings
+        </button>
+        <a class="navbar-brand mx-auto fw-bold" href="#">DevQuest</a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-end text-light lh-1">
+                <div class="fw-bold" th:text="${user.username}">User</div>
+                <small class="text-muted" style="font-size: 0.7rem;">Level <span th:text="${user.level}"></span></small>
+            </div>
+            <div class="avatar-circle">MK</div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    <h3 th:text="${user.username}">User Name</h3>
-                    <div class="badge bg-primary mb-2">Level <span th:text="${user.level}">1</span></div>
 
-                    <p class="text-muted mb-1">Experience</p>
-                    <div class="progress mb-3" style="height: 25px; position: relative;">
-                        <div class="progress-bar bg-success"
-                             role="progressbar"
-                             th:style="'width: ' + (${user.xp} % 100) + '%'">
-                        </div>
-                        <span class="position-absolute w-100 text-center text-dark fw-bold"
-                              style="top: 2px;"
-                              th:text="${user.xp % 100} + ' / 100 XP'">
-                            35 / 100 XP
-                        </span>
-                    </div>
-                    <small class="text-muted">Total XP: <span th:text="${user.xp}">235</span></small>
+        <div class="col-md-2 sidebar p-3 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Projects</h6>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action active border-0 rounded mb-1">
+                        <i class="bi bi-folder2-open me-2"></i> Diploma App
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action border-0 rounded mb-1 text-muted">
+                        <i class="bi bi-lock me-2"></i> Side Project
+                    </a>
                 </div>
+            </div>
+            <div class="mt-auto">
+                <hr>
+                <a href="#" class="btn btn-outline-warning w-100 text-dark fw-bold mb-2">
+                    <i class="bi bi-trophy-fill text-warning"></i> Leaderboards
+                </a>
+                <button class="btn btn-outline-secondary w-100 btn-sm" disabled>Shop (Coming Soon)</button>
             </div>
         </div>
 
-        <div class="col-md-9"> <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Project Board</h2>
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTaskModal">
-                + New Task
-            </button>
+        <div class="col-md-10 p-4">
 
-            <div class="modal fade" id="createTaskModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form action="/task/create" method="post"> <div class="modal-header">
-                            <h5 class="modal-title">Create New Task</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-8 text-center">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h2 class="fw-bold mb-0">Level <span class="text-primary" th:text="${user.level}">1</span></h2>
+                            <p class="text-muted mb-2">Total Experience: <span th:text="${user.xp}">0</span> XP</p>
+                            <div class="progress" style="height: 25px; position: relative;">
+                                <div class="progress-bar bg-success" role="progressbar" th:style="'width: ' + (${user.xp} % 100) + '%'"></div>
+                                <span class="position-absolute w-100 text-center text-dark fw-bold" style="top: 2px;"
+                                      th:text="${user.xp % 100} + ' / 100 XP'"></span>
+                            </div>
                         </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Task Title</label>
-                                    <input type="text" name="title" class="form-control" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Description</label>
-                                    <textarea name="description" class="form-control"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">XP Reward (Difficulty)</label>
-                                    <select name="reward" class="form-select">
-                                        <option value="10">Easy (10 XP)</option>
-                                        <option value="30">Medium (30 XP)</option>
-                                        <option value="50">Hard (50 XP)</option>
-                                        <option value="100">Epic (100 XP)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Create</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        </div>
+            <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                <h4><i class="bi bi-kanban"></i> Project Board</h4>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTaskModal">
+                    <i class="bi bi-plus-lg"></i> New Task
+                </button>
+            </div>
 
             <div class="row">
-                <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-header text-center fw-bold">TO DO</div>
-                        <div class="card-body p-2">
-                            <div th:each="task : ${tasks}" th:if="${task.status == 'TODO'}" class="card mb-2 shadow-sm">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title" th:text="${task.title}">Task</h6>
 
+                <div class="col-md-3">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3">TO DO</div>
+                        <div class="card-body p-2">
+                            <div th:each="task, iterStat : ${todoTasks}"
+                                 class="card mb-2 shadow-sm task-card"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-todo d-none'">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-title text-truncate" style="max-width: 150px;" th:text="${task.title}"></h6>
+                                        <button class="btn btn-link p-0 text-muted"
+                                                th:data-title="${task.title}"
+                                                th:data-desc="${task.description}"
+                                                th:data-xp="${task.rewardXp}"
+                                                data-status="TODO"
+                                                onclick="openTaskModal(this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <small class="badge"
                                                th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
-                                               th:text="${task.rewardXp} + ' XP'">
-                                            50 XP
-                                        </small>
-
-                                        <small class="text-muted">ID: <span th:text="${task.id}">1</span></small>
+                                               th:text="${task.rewardXp} + ' XP'"></small>
+                                        <a th:href="@{/task/{id}/start(id=${task.id})}" class="btn btn-outline-primary btn-sm py-0" style="font-size: 0.7rem;">Start</a>
                                     </div>
-
-                                    <a th:href="@{/task/{id}/start(id=${task.id})}" class="btn btn-outline-primary btn-sm w-100 mt-2" style="font-size: 0.7rem;">Start -></a>
                                 </div>
                             </div>
+                            <button th:if="${todoTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('todo', this)">Show All</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-header text-center fw-bold text-primary">IN PROGRESS</div>
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-primary">IN PROGRESS</div>
                         <div class="card-body p-2">
-                            <div th:each="task : ${tasks}" th:if="${task.status == 'IN_PROGRESS'}" class="card mb-2 shadow-sm border-primary">
+                            <div th:each="task, iterStat : ${progressTasks}"
+                                 class="card mb-2 shadow-sm task-card border-primary"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-progress d-none'">
                                 <div class="card-body p-2">
-                                    <h6 class="card-title" th:text="${task.title}">Task</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-title text-truncate" th:text="${task.title}"></h6>
+                                        <button class="btn btn-link p-0 text-muted"
+                                                th:data-title="${task.title}"
+                                                th:data-desc="${task.description}"
+                                                th:data-xp="${task.rewardXp}"
+                                                data-status="IN PROGRESS"
+                                                onclick="openTaskModal(this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
                                     <span class="badge"
                                           th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
-                                          th:text="${task.rewardXp} + ' XP'">
-                                        50 XP
-                                    </span>
+                                          th:text="${task.rewardXp} + ' XP'"></span>
                                     <div class="d-flex gap-1 mt-2">
-                                        <a th:href="@{/task/{id}/review(id=${task.id})}" class="btn btn-outline-warning btn-sm w-50" style="font-size: 0.6rem;">Review</a>
-                                        <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-outline-success btn-sm w-50" style="font-size: 0.6rem;">Done</a>
+                                        <a th:href="@{/task/{id}/review(id=${task.id})}" class="btn btn-outline-warning btn-sm w-50 py-0" style="font-size: 0.7rem;">Review</a>
+                                        <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-outline-success btn-sm w-50 py-0" style="font-size: 0.7rem;">Done</a>
                                     </div>
                                 </div>
                             </div>
+                            <button th:if="${progressTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('progress', this)">Show All</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-header text-center fw-bold text-warning">REVIEW</div>
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-warning">REVIEW</div>
                         <div class="card-body p-2">
-                            <div th:each="task : ${tasks}" th:if="${task.status == 'CODE_REVIEW'}" class="card mb-2 shadow-sm border-warning">
+                            <div th:each="task, iterStat : ${reviewTasks}"
+                                 class="card mb-2 shadow-sm task-card border-warning"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-review d-none'">
                                 <div class="card-body p-2">
-                                    <h6 class="card-title" th:text="${task.title}">Task</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-title text-truncate" th:text="${task.title}"></h6>
+                                        <button class="btn btn-link p-0 text-muted"
+                                                th:data-title="${task.title}"
+                                                th:data-desc="${task.description}"
+                                                th:data-xp="${task.rewardXp}"
+                                                data-status="REVIEW"
+                                                onclick="openTaskModal(this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
                                     <span class="badge"
                                           th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
-                                          th:text="${task.rewardXp} + ' XP'">
-                                        50 XP
-                                    </span>
-                                    <a th:href="@{/task/{id}/kudos(id=${task.id})}"
-                                       class="btn btn-sm btn-light w-100 mt-1 border position-relative"
-                                       th:classappend="${task.kudosCount >= 2} ? 'disabled opacity-50'"
-                                       th:attr="aria-disabled=${task.kudosCount >= 2} ? 'true' : 'false'">
-                                        👍 Kudos
+                                          th:text="${task.rewardXp} + ' XP'"></span>
 
-                                        <span th:if="${task.kudosCount > 0}"
-                                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                              th:text="${task.kudosCount}">
-                                            1
-                                        </span>
+                                    <a th:href="@{/task/{id}/kudos(id=${task.id})}"
+                                       class="btn btn-sm btn-light w-100 mt-2 border position-relative"
+                                       th:classappend="${task.kudosCount >= 2} ? 'disabled opacity-50'">
+                                        👍 Kudos
+                                        <span th:if="${task.kudosCount > 0}" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:text="${task.kudosCount}"></span>
                                     </a>
-                                    <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-success btn-sm w-100 mt-1" style="font-size: 0.7rem;">Approve</a>
+                                    <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-success btn-sm w-100 mt-1 py-0" style="font-size: 0.7rem;">Approve</a>
                                 </div>
                             </div>
+                            <button th:if="${reviewTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('review', this)">Show All</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="card bg-light">
-                        <div class="card-header text-center fw-bold text-success">DONE</div>
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-success">DONE</div>
                         <div class="card-body p-2">
-                            <div th:each="task : ${tasks}" th:if="${task.status == 'DONE'}" class="card mb-2 shadow-sm opacity-75">
+                            <div th:each="task, iterStat : ${doneTasks}"
+                                 class="card mb-2 shadow-sm opacity-75 task-card"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-done d-none'">
                                 <div class="card-body p-2">
-                                    <h6 class="card-title text-decoration-line-through text-muted" th:text="${task.title}">Task</h6>
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="card-title text-decoration-line-through text-muted" th:text="${task.title}"></h6>
+                                        <button class="btn btn-link p-0 text-muted"
+                                                th:data-title="${task.title}"
+                                                th:data-desc="${task.description}"
+                                                th:data-xp="${task.rewardXp}"
+                                                data-status="DONE"
+                                                onclick="openTaskModal(this)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
                                     <small class="text-success fw-bold">+<span th:text="${task.rewardXp}"></span> XP</small>
                                 </div>
                             </div>
+                            <button th:if="${doneTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('done', this)">Show All</button>
                         </div>
                     </div>
                 </div>
+
+            </div> <div class="text-center mt-5 text-muted small">
+            © 2026 DevQuest • Diploma Project Prototype
+        </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/task/create" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">XP Reward</label>
+                        <select name="reward" class="form-select">
+                            <option value="10">Easy (10 XP)</option>
+                            <option value="30">Medium (30 XP)</option>
+                            <option value="50">Hard (50 XP)</option>
+                            <option value="100">Epic (100 XP)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="universalTaskModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Task Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <span id="modalBadge" class="badge bg-secondary mb-3">STATUS</span>
+                <p class="fw-bold mb-1">Description:</p>
+                <p id="modalDesc" class="text-muted">No description.</p>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Reward:</strong>
+                    <span id="modalXp" class="badge bg-warning text-dark">50 XP</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Логика "Show All / Show Less"
+    function toggleTasks(column, btn) {
+        const hiddenTasks = document.querySelectorAll('.extra-task-' + column);
+        hiddenTasks.forEach(task => {
+            if (task.classList.contains('d-none')) {
+                task.classList.remove('d-none');
+                btn.innerText = "Show Less";
+            } else {
+                task.classList.add('d-none');
+                btn.innerText = "Show All";
+            }
+        });
+    }
+
+    // Логика открытия модального окна (Updated)
+    const taskModal = new bootstrap.Modal(document.getElementById('universalTaskModal'));
+
+    // Теперь принимаем 'element' (кнопку), а не кучу переменных
+    function openTaskModal(element) {
+        // Читаем данные из data-атрибутов кнопки
+        const title = element.getAttribute('data-title');
+        const desc = element.getAttribute('data-desc');
+        const xp = element.getAttribute('data-xp');
+        const status = element.getAttribute('data-status');
+
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalDesc').innerText = desc ? desc : "No detailed description provided.";
+        document.getElementById('modalXp').innerText = xp + ' XP';
+        document.getElementById('modalBadge').innerText = status;
+
+        taskModal.show();
+    }
+</script>
 
 </body>
 </html>
