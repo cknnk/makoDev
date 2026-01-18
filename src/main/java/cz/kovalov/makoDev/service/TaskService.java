@@ -34,16 +34,24 @@ public class TaskService {
     public void giveKudos(Long taskId) {
         Task task = taskRepository.findById(taskId).orElseThrow();
 
+        if (task.getKudosCount() >= 2) {
+            return;
+        }
+
         // likes
         task.setKudosCount(task.getKudosCount() + 1);
 
-        // 2. bonus
+        //cant kudos your own task (for the future)
         User author = task.getAssignee();
+
+        // for now without id check (cuz 1 user)
+        // if (currentUser.getId().equals(author.getId())) return;
+
         if (author != null) {
             author.setXp(author.getXp() + 5);
 
             //check for lvl up
-            int newLevel = 1 + (author.getXp() / 100); //maybe change xp needed from 100 to constantly raised (some formula?)
+            int newLevel = 1 + (author.getXp() / 100);
             if (newLevel > author.getLevel()) {
                 author.setLevel(newLevel);
                 //  maybe add message when user levels up?

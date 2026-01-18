@@ -1,5 +1,6 @@
 package cz.kovalov.makoDev.controller;
 
+import cz.kovalov.makoDev.data.entity.Project;
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -60,6 +63,26 @@ public class DashboardController {
     @GetMapping("/task/{id}/done")
     public String completeTask(@PathVariable Long id) {
         taskService.completeTask(id);
+        return "redirect:/";
+    }
+
+    @PostMapping("/task/create")
+    public String createTask(@RequestParam String title,
+                             @RequestParam int reward,
+                             @RequestParam String description) {
+        // hardcoded user FOR NOW
+        User currentUser = userRepository.findAll().get(0);
+        Project project = currentUser.getProjects().get(0); // hard coded project
+
+        Task task = new Task();
+        task.setTitle(title);
+        task.setDescription(description);
+        task.setRewardXp(reward);
+        task.setStatus("TODO");
+        task.setAssignee(currentUser);
+        task.setProject(project);
+
+        taskRepository.save(task);
         return "redirect:/";
     }
 }
