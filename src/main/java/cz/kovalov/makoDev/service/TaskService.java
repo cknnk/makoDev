@@ -18,9 +18,15 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public void startTask(Long taskId) {
+    @Transactional
+    public void startTask(Long taskId, String username) {
         Task task = taskRepository.findById(taskId).orElseThrow();
+        User currentUser = userRepository.findByUsername(username);
+
+        task.setAssignee(currentUser);
+
         task.setStatus("IN_PROGRESS");
+
         taskRepository.save(task);
     }
 
@@ -64,27 +70,29 @@ public class TaskService {
     }
 
     @Transactional
-    public void completeTask(Long taskId) {
+    public void completeTask(Long taskId, String username) {
         Task task = taskRepository.findById(taskId).orElseThrow();
 
         if ("DONE".equals(task.getStatus())) {
             return;
         }
 
+        User currentUser = userRepository.findByUsername(username);
+
+        task.setAssignee(currentUser);
         task.setStatus("DONE");
 
-        User user = task.getAssignee();
         int reward = task.getRewardXp();
-        user.setXp(user.getXp() + reward);
-        user.setDailyXpEarned(user.getDailyXpEarned() + reward);
+        currentUser.setXp(currentUser.getXp() + reward);
+        currentUser.setDailyXpEarned(currentUser.getDailyXpEarned() + reward);
 
-        int newLevel = 1 + (user.getXp() / 100); //maybe change xp needed from 100 to constantly raised (some formula?)
-        if (newLevel > user.getLevel()) {
-            user.setLevel(newLevel);
+        int newLevel = 1 + (currentUser.getXp() / 100); //maybe change xp needed from 100 to constantly raised (some formula?)
+        if (newLevel > currentUser.getLevel()) {
+            currentUser.setLevel(newLevel);
             //  maybe add message when user levels up?
         }
 
-        userRepository.save(user);
+        userRepository.save(currentUser);
         taskRepository.save(task);
     }
 }

@@ -48,9 +48,9 @@ public class DashboardController {
     }
 
     @GetMapping("/task/{id}/start")
-    public String startTask(@PathVariable Long id) {
-        taskService.startTask(id);
-        return "redirect:/"; // Перезагружаем страницу
+    public String startTask(@PathVariable Long id, java.security.Principal principal) {
+        taskService.startTask(id, principal.getName());
+        return "redirect:/";
     }
 
     @GetMapping("/task/{id}/review")
@@ -66,8 +66,8 @@ public class DashboardController {
     }
 
     @GetMapping("/task/{id}/done")
-    public String completeTask(@PathVariable Long id) {
-        taskService.completeTask(id);
+    public String completeTask(@PathVariable Long id, java.security.Principal principal) {
+        taskService.completeTask(id, principal.getName());
         return "redirect:/";
     }
 
