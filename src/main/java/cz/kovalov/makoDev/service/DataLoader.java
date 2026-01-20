@@ -1,3 +1,4 @@
+/*
 package cz.kovalov.makoDev.service;
 
 import cz.kovalov.makoDev.data.entity.Project;
@@ -67,4 +68,4 @@ public class DataLoader implements CommandLineRunner {
         t.setKudosCount(0);
         taskRepository.save(t);
     }
-}
+}*/

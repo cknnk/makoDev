@@ -30,8 +30,9 @@ public class DashboardController {
     }
 
     @GetMapping("/")
-    public String dashboard(Model model) {
-        User currentUser = userRepository.findAll().get(0);
+    public String dashboard(Model model, java.security.Principal principal) {
+        String username = principal.getName();
+        User currentUser = userRepository.findByUsername(username);
         model.addAttribute("user", currentUser);
 
         List<Task> allTasks = taskRepository.findAll();
@@ -73,16 +74,21 @@ public class DashboardController {
     @PostMapping("/task/create")
     public String createTask(@RequestParam String title,
                              @RequestParam int reward,
-                             @RequestParam String description) {
-        // hardcoded user FOR NOW
-        User currentUser = userRepository.findAll().get(0);
-        Project project = currentUser.getProjects().get(0); // hard coded project
+                             @RequestParam String description,
+                             java.security.Principal principal) {
+
+        String username = principal.getName();
+        User currentUser = userRepository.findByUsername(username);
+
+        // for now taking the first project
+        Project project = currentUser.getProjects().get(0);
 
         Task task = new Task();
         task.setTitle(title);
         task.setDescription(description);
         task.setRewardXp(reward);
         task.setStatus("TODO");
+
         task.setAssignee(currentUser);
         task.setProject(project);
 
