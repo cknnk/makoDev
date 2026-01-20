@@ -20,13 +20,20 @@
         <button class="btn btn-outline-secondary btn-sm text-light border-0">
             <i class="bi bi-gear-fill"></i> Settings
         </button>
+
         <a class="navbar-brand mx-auto fw-bold" href="#">DevQuest</a>
+
         <div class="d-flex align-items-center gap-3">
             <div class="text-end text-light lh-1">
                 <div class="fw-bold" th:text="${user.username}">User</div>
                 <small class="text-muted" style="font-size: 0.7rem;">Level <span th:text="${user.level}"></span></small>
             </div>
+
             <div class="avatar-circle">MK</div>
+
+            <a href="/logout" class="btn btn-outline-danger btn-sm ms-2" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
         </div>
     </div>
 </nav>
@@ -172,9 +179,16 @@
 
                                     <a th:href="@{/task/{id}/kudos(id=${task.id})}"
                                        class="btn btn-sm btn-light w-100 mt-2 border position-relative"
-                                       th:classappend="${task.kudosCount >= 2} ? 'disabled opacity-50'">
+                                       th:classappend="${task.kudosCount >= 2 || (task.assignee != null && task.assignee.id == user.id)} ? 'disabled opacity-50'"
+                                       th:attr="aria-disabled=${task.kudosCount >= 2 || (task.assignee != null && task.assignee.id == user.id)} ? 'true' : 'false'">
+
                                         👍 Kudos
-                                        <span th:if="${task.kudosCount > 0}" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:text="${task.kudosCount}"></span>
+
+                                        <span th:if="${task.kudosCount > 0}"
+                                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                              th:text="${task.kudosCount}">
+
+                                        </span>
                                     </a>
                                     <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-success btn-sm w-100 mt-1 py-0" style="font-size: 0.7rem;">Approve</a>
                                 </div>

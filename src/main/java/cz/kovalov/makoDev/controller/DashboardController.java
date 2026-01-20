@@ -60,8 +60,8 @@ public class DashboardController {
     }
 
     @GetMapping("/task/{id}/kudos")
-    public String giveKudos(@PathVariable Long id) {
-        taskService.giveKudos(id);
+    public String giveKudos(@PathVariable Long id, java.security.Principal principal) {
+        taskService.giveKudos(id, principal.getName());
         return "redirect:/";
     }
 
