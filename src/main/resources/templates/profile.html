@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>My Profile - DevQuest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .profile-header { background: linear-gradient(135deg, #0d6efd, #0dcaf0); color: white; padding: 3rem 0; margin-bottom: 2rem; }
+        .avatar-large { width: 100px; height: 100px; background-color: white; color: #0d6efd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; border: 4px solid rgba(255,255,255,0.5); }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="/">DevQuest</a> <div class="d-flex align-items-center gap-3">
+        <div class="text-end text-light lh-1">
+            <div class="fw-bold" th:text="${user.username}">User</div>
+            <small class="text-muted">Level <span th:text="${user.level}"></span></small>
+        </div>
+        <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">MK</div>
+        <a href="/logout" class="btn btn-outline-danger btn-sm ms-2"><i class="bi bi-box-arrow-right"></i></a>
+    </div>
+    </div>
+</nav>
+
+<div class="profile-header text-center">
+    <div class="container d-flex flex-column align-items-center">
+        <div class="avatar-large mb-3">MK</div>
+        <h2 class="fw-bold" th:text="${user.username}">Username</h2>
+        <p class="opacity-75">Software Developer • Team Member</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center p-4">
+                    <h5 class="text-muted mb-3">Current Level</h5>
+                    <div class="display-1 fw-bold text-primary mb-0" th:text="${user.level}">1</div>
+                    <p class="text-muted">Mastery</p>
+
+                    <hr class="my-4">
+
+                    <h5 class="text-start small text-muted mb-2">XP Progress</h5>
+                    <div class="progress" style="height: 25px; position: relative;">
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             th:style="'width: ' + ${currentProgress} + '%'">
+                        </div>
+                        <span class="position-absolute w-100 text-center text-dark fw-bold" style="top: 2px;"
+                              th:text="${currentProgress} + ' / 100 XP'"></span>
+                    </div>
+                    <div class="mt-2 text-end">
+                        <small class="text-muted">Total XP: <span th:text="${user.xp}"></span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card stat-card shadow-sm border-0">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-check-circle-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-0" th:text="${tasksDone}">0</h3>
+                                <small class="text-muted">Tasks Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card stat-card shadow-sm border-0">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="bg-danger bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-heart-fill text-danger fs-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-0" th:text="${totalKudos}">0</h3>
+                                <small class="text-muted">Kudos Received</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card stat-card shadow-sm border-0 opacity-75">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-coin text-warning fs-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-0" th:text="${user.coins}">0</h3>
+                                <small class="text-muted">Gold Coins</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card stat-card shadow-sm border-0">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-calendar-check text-success fs-3"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Active Today</h6>
+                                <small class="text-muted text-success">Online</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <a href="/" class="btn btn-outline-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
