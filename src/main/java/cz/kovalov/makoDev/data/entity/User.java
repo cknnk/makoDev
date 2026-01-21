@@ -2,6 +2,8 @@ package cz.kovalov.makoDev.data.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "users")
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +35,32 @@ public class User {
 
     @ManyToMany(mappedBy = "members")
     private List<Project> projects;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    private String email;
+
+    @Column(length = 500)
+    private String bio;
+
+    public String getInitials() {
+        if (firstName != null && !firstName.isEmpty() && lastName != null && !lastName.isEmpty()) {
+            return (firstName.substring(0, 1) + lastName.substring(0, 1)).toUpperCase();
+        }
+        if (username != null && username.length() >= 2) {
+            return username.substring(0, 2).toUpperCase();
+        }
+        return "GG";
+    }
+
+    public String getFullName() {
+        if (firstName != null && lastName != null) {
+            return firstName + " " + lastName;
+        }
+        return username;
+    }
 }

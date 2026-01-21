@@ -30,7 +30,10 @@
             </div>
 
             <a href="/profile" class="text-decoration-none">
-                <div class="avatar-circle" role="button">MK</div>
+                <div class="avatar-circle"
+                     style="background-color: #0d6efd; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;"
+                     th:text="${user.initials}">
+                    MK </div>
             </a>
 
             <a href="/logout" class="btn btn-outline-danger btn-sm ms-2" title="Logout">
@@ -45,22 +48,48 @@
 
         <div class="col-md-2 sidebar p-3 d-flex flex-column justify-content-between">
             <div>
-                <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Projects</h6>
+                <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">Current Project</h6>
+                <div class="d-flex align-items-center mb-4 p-2 bg-light rounded border">
+                    <i class="bi bi-rocket-takeoff-fill text-primary me-2"></i>
+                    <span class="fw-bold text-truncate" th:text="${project.name}">Project Name</span>
+                </div>
+
+                <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">Team Members</h6>
                 <div class="list-group list-group-flush">
-                    <a href="#" class="list-group-item list-group-item-action active border-0 rounded mb-1">
-                        <i class="bi bi-folder2-open me-2"></i> Diploma App
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action border-0 rounded mb-1 text-muted">
-                        <i class="bi bi-lock me-2"></i> Side Project
-                    </a>
+
+                    <div class="list-group list-group-flush">
+
+                        <a th:each="member : ${teamMembers}"
+                           th:href="@{/profile/{id}(id=${member.id})}"
+                           class="list-group-item list-group-item-action border-0 px-0 d-flex align-items-center"
+                           style="background: transparent;"> <div class="avatar-circle me-2"
+                                                                  style="width: 32px; height: 32px; font-size: 0.8rem;"
+                                                                  th:classappend="${member.username == user.username} ? 'bg-primary text-white' : 'bg-light text-dark border'"
+                                                                  th:text="${member.initials}">MK</div>
+
+                            <div class="lh-1">
+                                <div class="small fw-bold text-dark" th:text="${member.fullName}">Name</div>
+                                <small class="text-muted" style="font-size: 0.65rem;">
+                                    Level <span th:text="${member.level}">1</span> •
+                                    <span th:if="${member.username == user.username}" class="text-success">You</span>
+                                    <span th:unless="${member.username == user.username}">View Profile</span>
+                                </small>
+                            </div>
+                        </a>
+
+                    </div>
+
                 </div>
             </div>
+
             <div class="mt-auto">
                 <hr>
                 <a href="#" class="btn btn-outline-warning w-100 text-dark fw-bold mb-2">
                     <i class="bi bi-trophy-fill text-warning"></i> Leaderboards
                 </a>
-                <button class="btn btn-outline-secondary w-100 btn-sm" disabled>Shop (Coming Soon)</button>
+                <div class="text-center text-muted small mt-2">
+                    DevQuest v0.5
+                </div>
             </div>
         </div>
 

@@ -35,6 +35,16 @@ public class DashboardController {
         User currentUser = userRepository.findByUsername(username);
         model.addAttribute("user", currentUser);
 
+        //for now grab first project (change in future)
+        if (currentUser.getProjects().isEmpty()) {
+            //just in case
+            return "redirect:/logout";
+        }
+        Project currentProject = currentUser.getProjects().get(0);
+
+        model.addAttribute("project", currentProject);
+        model.addAttribute("teamMembers", currentProject.getMembers());
+
         List<Task> allTasks = taskRepository.findAll();
         model.addAttribute("todoTasks", allTasks.stream().filter(t -> "TODO".equals(t.getStatus())).toList());
         model.addAttribute("progressTasks", allTasks.stream().filter(t -> "IN_PROGRESS".equals(t.getStatus())).toList());

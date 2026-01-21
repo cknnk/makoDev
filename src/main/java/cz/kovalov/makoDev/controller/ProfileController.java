@@ -6,6 +6,9 @@ import cz.kovalov.makoDev.data.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 
@@ -21,19 +24,54 @@ public class ProfileController {
     }
 
     @GetMapping("/profile")
-    public String profilePage(Model model, Principal principal) {
-        String username = principal.getName();
-        User currentUser = userRepository.findByUsername(username);
+    public String myProfile(Model model, Principal principal) {
+        User currentUser = userRepository.findByUsername(principal.getName());
+        // redirect to universal method
+        return viewUserProfile(currentUser.getId(), model, principal);
+    }
 
-        int tasksDone = taskRepository.countByAssigneeAndStatus(currentUser, "DONE");
-        int totalKudos = taskRepository.getTotalKudosForUser(currentUser);
+    @PostMapping("/profile/update")
+    public String updateProfile(@RequestParam String firstName,
+                                @RequestParam String lastName,
+                                @RequestParam String email,
+                                @RequestParam String bio,
+                                Principal principal) {
 
-        int currentProgress = currentUser.getXp() % 100;
+        User user = userRepository.findByUsername(principal.getName());
 
-        model.addAttribute("user", currentUser);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setBio(bio);
+
+        userRepository.save(user);
+
+        return "redirect:/profile";
+    }
+
+    @GetMapping("/profile/{id}")
+    public String viewUserProfile(@PathVariable Long id, Model model, Principal principal) {
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        String currentUsername = principal.getName();
+        User currentUser = userRepository.findByUsername(currentUsername);
+
+        int tasksDone = taskRepository.countByAssigneeAndStatus(targetUser, "DONE");
+        int totalKudos = taskRepository.getTotalKudosForUser(targetUser);
+        int currentProgress = targetUser.getXp() % 100;
+
+        //whose profile is it
+        boolean isOwner = targetUser.getId().equals(currentUser.getId());
+
+        model.addAttribute("user", targetUser);
         model.addAttribute("tasksDone", tasksDone);
         model.addAttribute("totalKudos", totalKudos);
         model.addAttribute("currentProgress", currentProgress);
+        model.addAttribute("isOwner", isOwner);
+
+        //for avatar
+        model.addAttribute("currentUser", currentUser);
 
         return "profile";
     }
