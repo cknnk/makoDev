@@ -122,7 +122,39 @@
                     </div>
                 </div>
             </div>
-            <div class="text-end">
+
+            <h4 class="fw-bold mt-5 mb-3">Participating Projects</h4>
+
+            <div class="card shadow-sm border-0">
+                <div class="list-group list-group-flush">
+
+                    <div th:if="${#lists.isEmpty(user.projects)}" class="p-4 text-center text-muted">
+                        <i class="bi bi-folder-x fs-1 d-block mb-2"></i>
+                        User is not participating in any projects yet.
+                    </div>
+
+                    <div th:each="project : ${user.projects}" class="list-group-item p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-2 rounded me-3 text-primary">
+                                    <i class="bi bi-folder2-open fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1" th:text="${project.name}">Project Name</h6>
+                                    <p class="mb-0 small text-muted" th:text="${project.description}">No description</p>
+                                </div>
+                            </div>
+
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                                Active Member
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
                 <a href="/" class="btn btn-outline-secondary">Back to Dashboard</a>
             </div>
         </div>
