@@ -32,8 +32,23 @@
     </div>
 </nav>
 
+<div class="container mt-3">
+    <div th:if="${param.passSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> Password changed successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${param.passError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${param.passError}">Error</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
 <div class="profile-header text-center position-relative">
     <div class="position-absolute top-0 end-0 m-4" th:if="${isOwner}">
+        <button class="btn btn-outline-light btn-sm bg-white bg-opacity-25 border-0 text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+            <i class="bi bi-key-fill"></i> Password
+        </button>
+
         <button class="btn btn-light btn-sm text-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
             <i class="bi bi-pencil-fill"></i> Edit Profile
         </button>
@@ -195,6 +210,38 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/profile/change-password" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" name="currentPassword" class="form-control" required>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="newPassword" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Password</button>
                 </div>
             </form>
         </div>

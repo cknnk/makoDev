@@ -3,6 +3,7 @@ package cz.kovalov.makoDev.controller;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +18,12 @@ public class ProfileController {
 
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public ProfileController(UserRepository userRepository, TaskRepository taskRepository) {
+    public ProfileController(UserRepository userRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/profile")
@@ -74,5 +77,27 @@ public class ProfileController {
         model.addAttribute("currentUser", currentUser);
 
         return "profile";
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Principal principal) {
+
+        User user = userRepository.findByUsername(principal.getName());
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return "redirect:/profile?passError=Current password is incorrect";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            return "redirect:/profile?passError=New passwords do not match";
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return "redirect:/profile?passSuccess";
     }
 }
