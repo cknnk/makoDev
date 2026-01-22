@@ -6,12 +6,15 @@ import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
 import cz.kovalov.makoDev.service.TaskService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.security.Principal;
 import java.util.Comparator;
 
 import java.util.List;
@@ -30,26 +33,45 @@ public class DashboardController {
     }
 
     @GetMapping("/")
-    public String dashboard(Model model, java.security.Principal principal) {
+    public String dashboard(Model model, Principal principal, HttpSession session) {
         String username = principal.getName();
         User currentUser = userRepository.findByUsername(username);
         model.addAttribute("user", currentUser);
 
-        //for now grab first project (change in future)
-        if (currentUser.getProjects().isEmpty()) {
-            //just in case
+        Project activeProject = null;
+
+        Long activeProjectId = (Long) session.getAttribute("activeProjectId");
+
+        if (activeProjectId != null) {
+            activeProject = currentUser.getProjects().stream()
+                    .filter(p -> p.getId().equals(activeProjectId))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (activeProject == null && !currentUser.getProjects().isEmpty()) {
+            activeProject = currentUser.getProjects().get(0);
+            session.setAttribute("activeProjectId", activeProject.getId());
+        }
+
+        //fix it, redirect to no projects page
+        if (activeProject == null) {
             return "redirect:/logout";
         }
-        Project currentProject = currentUser.getProjects().get(0);
 
-        model.addAttribute("project", currentProject);
-        model.addAttribute("teamMembers", currentProject.getMembers());
 
-        List<Task> allTasks = taskRepository.findAll();
-        model.addAttribute("todoTasks", allTasks.stream().filter(t -> "TODO".equals(t.getStatus())).toList());
-        model.addAttribute("progressTasks", allTasks.stream().filter(t -> "IN_PROGRESS".equals(t.getStatus())).toList());
-        model.addAttribute("reviewTasks", allTasks.stream().filter(t -> "CODE_REVIEW".equals(t.getStatus())).toList());
-        model.addAttribute("doneTasks", allTasks.stream()
+        model.addAttribute("project", activeProject);
+        model.addAttribute("teamMembers", activeProject.getMembers());
+
+        boolean isOwner = activeProject.getOwner() != null && activeProject.getOwner().getId().equals(currentUser.getId());
+        model.addAttribute("isProjectOwner", isOwner);
+
+        List<Task> projectTasks = taskRepository.findByProject(activeProject);
+
+        model.addAttribute("todoTasks", projectTasks.stream().filter(t -> "TODO".equals(t.getStatus())).toList());
+        model.addAttribute("progressTasks", projectTasks.stream().filter(t -> "IN_PROGRESS".equals(t.getStatus())).toList());
+        model.addAttribute("reviewTasks", projectTasks.stream().filter(t -> "CODE_REVIEW".equals(t.getStatus())).toList());
+        model.addAttribute("doneTasks", projectTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
                 .sorted(Comparator.comparing(Task::getId).reversed())
                 .toList());

@@ -53,11 +53,12 @@ public class AuthController {
 
         userRepository.save(newUser);
 
-        // 2. first project (for now)
         Project personalProject = new Project();
         personalProject.setName("My First Project");
         personalProject.setDescription("Personal workspace for " + username);
         personalProject.setMembers(List.of(newUser));
+
+        personalProject.setOwner(newUser);
 
         projectRepository.save(personalProject);
 

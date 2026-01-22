@@ -2,11 +2,16 @@ package cz.kovalov.makoDev.data.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 @Entity
 @Data
 @Table(name = "projects")
+@Getter
+@Setter
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +29,8 @@ public class Project {
     
     @OneToMany(mappedBy = "project")
     private List<Task> tasks;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 }
