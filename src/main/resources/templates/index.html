@@ -509,12 +509,10 @@
         const footer = document.getElementById('readmeFooter');
 
         if (editForm.classList.contains('d-none')) {
-            // Включаем редактор
             viewMode.classList.add('d-none');
             editForm.classList.remove('d-none');
-            footer.classList.add('d-none'); // Прячем кнопку Edit внизу
+            footer.classList.add('d-none');
         } else {
-            // Выключаем редактор
             viewMode.classList.remove('d-none');
             editForm.classList.add('d-none');
             footer.classList.remove('d-none');
