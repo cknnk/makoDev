@@ -107,4 +107,22 @@ public class ProjectController {
 
         return "redirect:/?success=Member removed";
     }
+
+    @PostMapping("/project/update-info")
+    public String updateProjectInfo(@RequestParam Long projectId,
+                                    @RequestParam String description,
+                                    Principal principal) {
+
+        User currentUser = userRepository.findByUsername(principal.getName());
+        Project project = projectRepository.findById(projectId).orElseThrow();
+
+        if (!project.getOwner().equals(currentUser)) {
+            return "redirect:/?error=Only owner can edit project info";
+        }
+
+        project.setDescription(description);
+        projectRepository.save(project);
+
+        return "redirect:/?success=Project info updated";
+    }
 }

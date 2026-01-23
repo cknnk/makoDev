@@ -36,6 +36,13 @@ public class DashboardController {
     public String dashboard(Model model, Principal principal, HttpSession session) {
         String username = principal.getName();
         User currentUser = userRepository.findByUsername(username);
+
+        if (currentUser == null) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+
         model.addAttribute("user", currentUser);
 
         Project activeProject = null;
