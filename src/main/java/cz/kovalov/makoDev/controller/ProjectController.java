@@ -58,4 +58,53 @@ public class ProjectController {
 
         return "redirect:/";
     }
+
+    @PostMapping("/project/add-member")
+    public String addMember(@RequestParam Long projectId,
+                            @RequestParam String username,
+                            Principal principal) {
+
+        User currentUser = userRepository.findByUsername(principal.getName());
+        Project project = projectRepository.findById(projectId).orElseThrow();
+
+        if (!project.getOwner().equals(currentUser)) {
+            return "redirect:/?error=Only owner can add members";
+        }
+
+        User newMember = userRepository.findByUsername(username);
+        if (newMember == null) {
+            return "redirect:/?error=User not found";
+        }
+
+        if (project.getMembers().contains(newMember)) {
+            return "redirect:/?error=User already in project";
+        }
+
+        project.getMembers().add(newMember);
+        projectRepository.save(project);
+
+        return "redirect:/?success=Member added";
+    }
+
+    @PostMapping("/project/remove-member")
+    public String removeMember(@RequestParam Long projectId,
+                               @RequestParam Long memberId,
+                               Principal principal) {
+
+        User currentUser = userRepository.findByUsername(principal.getName());
+        Project project = projectRepository.findById(projectId).orElseThrow();
+
+        if (!project.getOwner().equals(currentUser)) {
+            return "redirect:/?error=Access denied";
+        }
+
+        if (memberId.equals(project.getOwner().getId())) {
+            return "redirect:/?error=Cannot remove owner";
+        }
+
+        project.getMembers().removeIf(user -> user.getId().equals(memberId));
+        projectRepository.save(project);
+
+        return "redirect:/?success=Member removed";
+    }
 }

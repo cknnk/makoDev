@@ -107,20 +107,22 @@ public class DashboardController {
     public String createTask(@RequestParam String title,
                              @RequestParam int reward,
                              @RequestParam String description,
+                             @RequestParam Long projectId,
                              java.security.Principal principal) {
 
         String username = principal.getName();
         User currentUser = userRepository.findByUsername(username);
 
-        // for now taking the first project
-        Project project = currentUser.getProjects().get(0);
+        Project project = currentUser.getProjects().stream()
+                .filter(p -> p.getId().equals(projectId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Project not found or access denied"));
 
         Task task = new Task();
         task.setTitle(title);
         task.setDescription(description);
         task.setRewardXp(reward);
         task.setStatus("TODO");
-
         task.setAssignee(currentUser);
         task.setProject(project);
 
