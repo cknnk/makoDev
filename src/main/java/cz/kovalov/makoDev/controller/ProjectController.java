@@ -32,6 +32,9 @@ public class ProjectController {
 
         if (project.getMembers().contains(user)) {
             session.setAttribute("activeProjectId", id);
+
+            user.setCurrentProject(project);
+            userRepository.save(user);
         }
 
         return "redirect:/";
@@ -124,5 +127,37 @@ public class ProjectController {
         projectRepository.save(project);
 
         return "redirect:/?success=Project info updated";
+    }
+
+    @PostMapping("/project/delete")
+    public String deleteProject(@RequestParam Long projectId,
+                                Principal principal,
+                                HttpSession session) {
+
+        User currentUser = userRepository.findByUsername(principal.getName());
+        Project project = projectRepository.findById(projectId).orElseThrow();
+
+        if (!project.getOwner().equals(currentUser)) {
+            return "redirect:/?error=Only owner can delete project";
+        }
+
+        for (User member : project.getMembers()) {
+            if (member.getCurrentProject() != null && member.getCurrentProject().getId().equals(projectId)) {
+                member.setCurrentProject(null);
+                userRepository.save(member);
+            }
+        }
+
+        Long sessionProjectId = (Long) session.getAttribute("activeProjectId");
+        if (sessionProjectId != null && sessionProjectId.equals(projectId)) {
+            session.removeAttribute("activeProjectId");
+        }
+
+        project.getMembers().clear();
+        projectRepository.save(project);
+
+        projectRepository.delete(project);
+
+        return "redirect:/?success=Project deleted";
     }
 }

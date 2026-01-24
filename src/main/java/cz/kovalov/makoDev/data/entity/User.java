@@ -47,6 +47,10 @@ public class User {
     @Column(length = 500)
     private String bio;
 
+    @ManyToOne
+    @JoinColumn(name = "current_project_id")
+    private Project currentProject;
+
     public String getInitials() {
         if (firstName != null && !firstName.isEmpty() && lastName != null && !lastName.isEmpty()) {
             return (firstName.substring(0, 1) + lastName.substring(0, 1)).toUpperCase();

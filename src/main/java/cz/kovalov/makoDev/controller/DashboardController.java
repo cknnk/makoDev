@@ -42,30 +42,40 @@ public class DashboardController {
             return "redirect:/login";
         }
 
-
         model.addAttribute("user", currentUser);
 
         Project activeProject = null;
 
-        Long activeProjectId = (Long) session.getAttribute("activeProjectId");
-
-        if (activeProjectId != null) {
+        //1 attempt of getting project from session
+        Long sessionProjectId = (Long) session.getAttribute("activeProjectId");
+        if (sessionProjectId != null) {
             activeProject = currentUser.getProjects().stream()
-                    .filter(p -> p.getId().equals(activeProjectId))
-                    .findFirst()
-                    .orElse(null);
+                    .filter(p -> p.getId().equals(sessionProjectId))
+                    .findFirst().orElse(null);
         }
 
+        //2 attempt of getting project from database
+        if (activeProject == null && currentUser.getCurrentProject() != null) {
+            if (currentUser.getProjects().contains(currentUser.getCurrentProject())) {
+                activeProject = currentUser.getCurrentProject();
+                session.setAttribute("activeProjectId", activeProject.getId());
+            }
+        }
+
+        // 3 attempt of getting project from any other available
         if (activeProject == null && !currentUser.getProjects().isEmpty()) {
             activeProject = currentUser.getProjects().get(0);
+
             session.setAttribute("activeProjectId", activeProject.getId());
+            currentUser.setCurrentProject(activeProject);
+            userRepository.save(currentUser);
         }
 
-        //fix it, redirect to no projects page
+        //if no project then logout
+        //fix it, redirect to no projects page maybe???
         if (activeProject == null) {
-            return "redirect:/logout";
+            return "no-projects";
         }
-
 
         model.addAttribute("project", activeProject);
         model.addAttribute("teamMembers", activeProject.getMembers());
