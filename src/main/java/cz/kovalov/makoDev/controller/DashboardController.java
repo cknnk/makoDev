@@ -42,6 +42,16 @@ public class DashboardController {
             return "redirect:/login";
         }
 
+        currentUser.checkAndResetDailyStats();
+        userRepository.save(currentUser);
+
+        model.addAttribute("dailyXp", currentUser.getDailyXpEarned());
+        model.addAttribute("maxDailyXp", 150);
+
+        java.time.DayOfWeek day = java.time.LocalDate.now().getDayOfWeek();
+        boolean isWeekend = (day == java.time.DayOfWeek.SATURDAY || day == java.time.DayOfWeek.SUNDAY);
+        model.addAttribute("isWeekend", isWeekend);
+
         model.addAttribute("user", currentUser);
 
         Project activeProject = null;
@@ -71,8 +81,6 @@ public class DashboardController {
             userRepository.save(currentUser);
         }
 
-        //if no project then logout
-        //fix it, redirect to no projects page maybe???
         if (activeProject == null) {
             return "no-projects";
         }

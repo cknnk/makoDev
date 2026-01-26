@@ -67,4 +67,12 @@ public class User {
         }
         return username;
     }
+
+    public void checkAndResetDailyStats() {
+        LocalDate today = LocalDate.now();
+        if (this.lastActiveDate == null || !this.lastActiveDate.equals(today)) {
+            this.dailyXpEarned = 0;
+            this.lastActiveDate = today;
+        }
+    }
 }
