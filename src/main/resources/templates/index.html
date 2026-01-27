@@ -10,7 +10,8 @@
         .sidebar { min-height: 100vh; background: #fff; border-right: 1px solid #dee2e6; }
         .avatar-circle { width: 40px; height: 40px; background-color: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .task-card { border-left: 4px solid transparent; }
-        .extra-task { display: none; }
+        .transition-hover { transition: transform 0.2s, box-shadow 0.2s; }
+        .transition-hover:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -130,7 +131,6 @@
             </div>
 
             <div class="mt-auto">
-                <hr>
                 <div class="mt-4 mb-3 p-3 bg-light rounded border">
                     <div th:if="${!isWeekend}">
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -167,9 +167,6 @@
                         </p>
                     </div>
                 </div>
-                <a href="#" class="btn btn-outline-warning w-100 text-dark fw-bold mb-2">
-                    <i class="bi bi-trophy-fill text-warning"></i> Leaderboards
-                </a>
                 <div class="text-center text-muted small mt-2">
                     DevQuest v0.5
                 </div>
@@ -178,20 +175,53 @@
 
         <div class="col-md-10 p-4">
 
-            <div class="row justify-content-center mb-4">
-                <div class="col-md-8 text-center">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <h2 class="fw-bold mb-0">Level <span class="text-primary" th:text="${user.level}">1</span></h2>
-                            <p class="text-muted mb-2">Total Experience: <span th:text="${user.xp}">0</span> XP</p>
-                            <div class="progress" style="height: 25px; position: relative;">
-                                <div class="progress-bar bg-success" role="progressbar" th:style="'width: ' + (${user.xp} % 100) + '%'"></div>
-                                <span class="position-absolute w-100 text-center text-dark fw-bold" style="top: 2px;"
-                                      th:text="${user.xp % 100} + ' / 100 XP'"></span>
+            <div class="row mb-4 g-3">
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body d-flex align-items-center justify-content-between px-4">
+                            <div>
+                                <h6 class="text-muted text-uppercase small fw-bold mb-1">Personal Growth</h6>
+                                <h2 class="fw-bold mb-0">Lvl <span class="text-primary" th:text="${user.level}">1</span></h2>
+                                <small class="text-muted">Total: <span th:text="${user.xp}">0</span> XP</small>
+                            </div>
+                            <div style="width: 120px;">
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" th:style="'width: ' + (${user.xp} % 100) + '%'"></div>
+                                </div>
+                                <div class="text-center mt-1" style="font-size: 0.7rem;">
+                                    <span th:text="${user.xp % 100}">0</span> / 100 XP
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <a href="/stats" class="text-decoration-none"> <div class="card shadow-sm border-0 h-100 bg-primary bg-opacity-10 transition-hover">
+                        <div class="card-body d-flex align-items-center justify-content-between px-4">
+                            <div>
+                                <h6 class="text-primary text-uppercase small fw-bold mb-1">
+                                    <i class="bi bi-people-fill me-1"></i> Team Stats
+                                </h6>
+                                <h2 class="fw-bold text-dark mb-0">Lvl <span th:text="${projectLevel}">1</span></h2>
+                                <small class="text-muted">Next level in <span th:text="${1000 - projectProgress}">0</span> XP</small>
+                            </div>
+
+                            <div style="width: 120px;">
+                                <div class="progress bg-white" style="height: 10px;">
+                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar"
+                                         th:style="'width: ' + (${projectProgress} / 10.0) + '%'"></div>
+                                </div>
+                                <div class="text-center mt-1 text-muted" style="font-size: 0.7rem;">
+                                    <span th:text="${projectProgress}">0</span> / 1000 XP
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3 px-2">
@@ -361,20 +391,26 @@
 
                     <div class="mb-3">
                         <label class="form-label">Task Title</label>
-                        <input type="text" name="title" class="form-control" required>
+                        <label>
+                            <input type="text" name="title" class="form-control" required>
+                        </label>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
+                        <label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </label>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">XP Reward</label>
-                        <select name="reward" class="form-select">
-                            <option value="10">Easy (10 XP)</option>
-                            <option value="30">Medium (30 XP)</option>
-                            <option value="50">Hard (50 XP)</option>
-                            <option value="100">Epic (100 XP)</option>
-                        </select>
+                        <label>
+                            <select name="reward" class="form-select">
+                                <option value="10">Easy (10 XP)</option>
+                                <option value="30">Medium (30 XP)</option>
+                                <option value="50">Hard (50 XP)</option>
+                                <option value="100">Epic (100 XP)</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -421,11 +457,15 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Project Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="e.g. Mobile App v2" required>
+                        <label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Mobile App v2" required>
+                        </label>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="Short goal description..."></textarea>
+                        <label>
+                            <textarea name="description" class="form-control" rows="2" placeholder="Short goal description..."></textarea>
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -449,7 +489,9 @@
                 <h6 class="fw-bold mb-3">Add Team Member</h6>
                 <form action="/project/add-member" method="post" class="d-flex gap-2 mb-4">
                     <input type="hidden" name="projectId" th:value="${project.id}">
-                    <input type="text" name="username" class="form-control" placeholder="Enter username (e.g. anna)" required>
+                    <label>
+                        <input type="text" name="username" class="form-control" placeholder="Enter username (e.g. Anna)" required>
+                    </label>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </form>
 
@@ -527,9 +569,11 @@
                 <input type="hidden" name="projectId" th:value="${project.id}">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Edit Documentation</label>
-                    <textarea name="description" class="form-control" rows="10"
-                              th:text="${project.description}"
-                              placeholder="Write about project goals, links to design, contacts, etc..."></textarea>
+                    <label>
+                        <textarea name="description" class="form-control" rows="10"
+                                  th:text="${project.description}"
+                                  placeholder="Write about project goals, links to design, contacts, etc..."></textarea>
+                    </label>
                     <div class="form-text">You can use simple text. Line breaks are preserved.</div>
                 </div>
                 <div class="d-flex justify-content-end gap-2">

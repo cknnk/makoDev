@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Team Stats - DevQuest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .avatar-small { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: white;}
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4 mb-4">
+    <div class="container-fluid">
+        <a href="/" class="navbar-brand fw-bold"><i class="bi bi-arrow-left me-2"></i>Back to Dashboard</a>
+        <span class="navbar-text text-white fw-bold" th:text="${project.name}">Project Name</span>
+    </div>
+</nav>
+
+<div class="container" style="max-width: 900px;">
+
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5">📊 Team Stats</h1>
+        <p class="text-muted">Tracking our collective progress and your personal impact.</p>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4 bg-primary bg-opacity-10">
+        <div class="card-body p-4 text-center">
+            <h5 class="text-uppercase text-primary fw-bold mb-3" style="letter-spacing: 2px;">Project Level</h5>
+
+            <div class="d-inline-block bg-white rounded-circle p-4 mb-3 shadow-sm text-primary border border-primary border-opacity-25" style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                <h1 class="display-4 fw-bold mb-0" th:text="${projectLevel}">1</h1>
+            </div>
+
+            <p class="mb-2 text-muted">Total Team XP: <strong th:text="${teamTotalXp}">0</strong></p>
+
+            <div class="progress mx-auto bg-white" style="height: 20px; max-width: 600px; border-radius: 10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                     th:style="'width: ' + (${progressToNextLevel} / 10.0) + '%'">
+                    <span th:text="${progressToNextLevel} + ' / 1000'"></span>
+                </div>
+            </div>
+            <small class="text-muted mt-2 d-block">Next team level in <span th:text="${1000 - progressToNextLevel}"></span> XP</small>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-0 fw-bold py-3">
+                    <i class="bi bi-person-circle text-success me-2"></i> Your Impact
+                </div>
+                <div class="card-body">
+
+                    <div class="row align-items-center mb-4">
+                        <div class="col-6">
+                            <h2 class="fw-bold mb-0 text-success" th:text="${myTasksCount}">0</h2>
+                            <small class="text-muted">Tasks Completed</small>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h2 class="fw-bold mb-0 text-primary" th:text="${myContribution} + '%'">0%</h2>
+                            <small class="text-muted">Of Total Contribution</small>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded">
+                        <h6 class="fw-bold mb-2">Personal Growth</h6>
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Current Level</span>
+                            <span th:text="'Lvl ' + ${user.level}">Lvl 1</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" th:style="'width: ' + (${user.xp} % 100) + '%'"></div>
+                        </div>
+                        <div class="mt-2 text-end small text-success fw-bold">
+                            Keep growing! 🌱
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-0 fw-bold py-3">
+                    <i class="bi bi-activity text-warning me-2"></i> Recent Victories
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+
+                        <div th:if="${#lists.isEmpty(recentActivity)}" class="p-4 text-center text-muted">
+                            No tasks completed yet. Be the first!
+                        </div>
+
+                        <div th:each="task : ${recentActivity}" class="list-group-item border-0 px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-small me-3"
+                                     style="background-color: #6c757d;"
+                                     th:classappend="${task.assignee.username == user.username} ? 'bg-success' : 'bg-secondary'"
+                                     th:text="${task.assignee.initials}">AB</div>
+
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold text-dark" style="font-size: 0.9rem;" th:text="${task.title}">Task Title</span>
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">+<span th:text="${task.rewardXp}"></span> XP</span>
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                        completed by <span th:text="${task.assignee.fullName}">User</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

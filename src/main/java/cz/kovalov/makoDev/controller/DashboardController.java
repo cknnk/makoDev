@@ -5,6 +5,7 @@ import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
+import cz.kovalov.makoDev.service.ProjectService;
 import cz.kovalov.makoDev.service.TaskService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -25,11 +26,13 @@ public class DashboardController {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskService taskService;
+    private final ProjectService projectService;
 
-    public DashboardController(TaskRepository taskRepository, UserRepository userRepository, TaskService taskService) {
+    public DashboardController(TaskRepository taskRepository, UserRepository userRepository, TaskService taskService, ProjectService projectService) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.taskService = taskService;
+        this.projectService = projectService;
     }
 
     @GetMapping("/")
@@ -54,32 +57,7 @@ public class DashboardController {
 
         model.addAttribute("user", currentUser);
 
-        Project activeProject = null;
-
-        //1 attempt of getting project from session
-        Long sessionProjectId = (Long) session.getAttribute("activeProjectId");
-        if (sessionProjectId != null) {
-            activeProject = currentUser.getProjects().stream()
-                    .filter(p -> p.getId().equals(sessionProjectId))
-                    .findFirst().orElse(null);
-        }
-
-        //2 attempt of getting project from database
-        if (activeProject == null && currentUser.getCurrentProject() != null) {
-            if (currentUser.getProjects().contains(currentUser.getCurrentProject())) {
-                activeProject = currentUser.getCurrentProject();
-                session.setAttribute("activeProjectId", activeProject.getId());
-            }
-        }
-
-        // 3 attempt of getting project from any other available
-        if (activeProject == null && !currentUser.getProjects().isEmpty()) {
-            activeProject = currentUser.getProjects().get(0);
-
-            session.setAttribute("activeProjectId", activeProject.getId());
-            currentUser.setCurrentProject(activeProject);
-            userRepository.save(currentUser);
-        }
+        Project activeProject = projectService.getActiveProject(currentUser, session);
 
         if (activeProject == null) {
             return "no-projects";
@@ -100,6 +78,17 @@ public class DashboardController {
                 .filter(t -> "DONE".equals(t.getStatus()))
                 .sorted(Comparator.comparing(Task::getId).reversed())
                 .toList());
+
+
+        // gathering all users xp
+        int teamTotalXp = projectService.calculateProjectTotalXp(projectTasks);
+
+        //project level
+        int projectLevel = 1 + (teamTotalXp / 1000);
+        int projectProgress = teamTotalXp % 1000;
+
+        model.addAttribute("projectLevel", projectLevel);
+        model.addAttribute("projectProgress", projectProgress);
 
         return "index";
     }
