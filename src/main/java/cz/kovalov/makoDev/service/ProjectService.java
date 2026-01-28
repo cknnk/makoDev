@@ -14,6 +14,8 @@ public class ProjectService {
 
     private final UserRepository userRepository;
 
+    private static final int REVIEW_REWARD = 15;
+
     public ProjectService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -61,11 +63,16 @@ public class ProjectService {
                 .mapToInt(Task::getRewardXp)
                 .sum();
 
+        long doneTasksCount = projectTasks.stream()
+                .filter(t -> "DONE".equals(t.getStatus()))
+                .count();
+        int reviewXp = (int) (doneTasksCount * REVIEW_REWARD);
+
         // kudos
         int kudosXp = projectTasks.stream()
                 .mapToInt(t -> t.getKudosCount() * 5)
                 .sum();
 
-        return tasksXp + kudosXp;
+        return tasksXp + reviewXp + kudosXp;
     }
 }

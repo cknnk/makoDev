@@ -14,6 +14,7 @@ public class TaskService {
     private final UserRepository userRepository;
 
     private static final int MAX_DAILY_XP = 150;
+    private static final int REVIEW_REWARD = 15;
 
     public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
@@ -52,10 +53,7 @@ public class TaskService {
         if (author != null) {
             author.setXp(author.getXp() + 5);
 
-            int newLevel = 1 + (author.getXp() / 100);
-            if (newLevel > author.getLevel()) {
-                author.setLevel(newLevel);
-            }
+            updateLevel(author);
             userRepository.save(author);
         }
 
@@ -63,45 +61,64 @@ public class TaskService {
     }
 
     @Transactional
-    public void completeTask(Long taskId, String username) {
+    public void completeTask(Long taskId, String reviewerUsername) {
         Task task = taskRepository.findById(taskId).orElseThrow();
 
         if ("DONE".equals(task.getStatus())) {
             return;
         }
 
-        User currentUser = userRepository.findByUsername(username);
+        if (!"CODE_REVIEW".equals(task.getStatus())) {
+            return;
+        }
 
-        currentUser.checkAndResetDailyStats();
+        User reviewer = userRepository.findByUsername(reviewerUsername);
+        User author = task.getAssignee();
 
-        task.setAssignee(currentUser);
+        // author can't approve his own task
+        if (author != null && author.getId().equals(reviewer.getId())) {
+            return;
+        }
+
+        // awarding the one who reviews
+        addXpWithBurnoutProtection(reviewer, REVIEW_REWARD);
+
+        if (author != null) {
+            addXpWithBurnoutProtection(author, task.getRewardXp());
+        }
+
+        //maybe add a massage on lvl up?
+
         task.setStatus("DONE");
+        taskRepository.save(task);
+    }
 
-        // anti-burnout logic
-        int reward = task.getRewardXp();
-        int currentDaily = currentUser.getDailyXpEarned();
+    private void updateLevel(User user) {
+        int newLevel = 1 + (user.getXp() / 100);
+        if (newLevel > user.getLevel()) {
+            user.setLevel(newLevel);
+        }
+    }
+
+    private void addXpWithBurnoutProtection(User user, int amount) {
+        user.checkAndResetDailyStats();
+
+        int currentDaily = user.getDailyXpEarned();
         int xpToAdd;
 
         if (currentDaily >= MAX_DAILY_XP) {
             xpToAdd = 0;
-        } else if (currentDaily + reward > MAX_DAILY_XP) {
+        } else if (currentDaily + amount > MAX_DAILY_XP) {
             xpToAdd = MAX_DAILY_XP - currentDaily;
         } else {
-            xpToAdd = reward;
+            xpToAdd = amount;
         }
 
         if (xpToAdd > 0) {
-            currentUser.setXp(currentUser.getXp() + xpToAdd);
-            currentUser.setDailyXpEarned(currentUser.getDailyXpEarned() + xpToAdd);
-
-            int newLevel = 1 + (currentUser.getXp() / 100);
-            if (newLevel > currentUser.getLevel()) { //maybe change xp needed from 100 to constantly raised (some formula?)
-                currentUser.setLevel(newLevel);
-                //  maybe add message when user levels up?
-            }
+            user.setXp(user.getXp() + xpToAdd);
+            user.setDailyXpEarned(user.getDailyXpEarned() + xpToAdd);
+            updateLevel(user);
+            userRepository.save(user);
         }
-
-        userRepository.save(currentUser);
-        taskRepository.save(task);
     }
 }

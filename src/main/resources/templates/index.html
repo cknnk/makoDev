@@ -287,9 +287,12 @@
                                     <span class="badge"
                                           th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
                                           th:text="${task.rewardXp} + ' XP'"></span>
-                                    <div class="d-flex gap-1 mt-2">
-                                        <a th:href="@{/task/{id}/review(id=${task.id})}" class="btn btn-outline-warning btn-sm w-50 py-0" style="font-size: 0.7rem;">Review</a>
-                                        <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-outline-success btn-sm w-50 py-0" style="font-size: 0.7rem;">Done</a>
+                                    <div class="mt-2">
+                                        <a th:href="@{/task/{id}/review(id=${task.id})}"
+                                           class="btn btn-outline-warning btn-sm w-100 py-0"
+                                           style="font-size: 0.7rem;">
+                                            <i class="bi bi-eye"></i> Request Review
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -317,24 +320,35 @@
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </div>
-                                    <span class="badge"
-                                          th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
-                                          th:text="${task.rewardXp} + ' XP'"></span>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge" th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : 'bg-warning text-dark')}" th:text="${task.rewardXp} + ' XP'"></span>
+                                        <div th:if="${task.assignee != null}" class="avatar-circle" style="width: 24px; height: 24px; font-size: 0.6rem;"
+                                             th:text="${task.assignee.initials}" title="Author">MK</div>
+                                    </div>
 
                                     <a th:href="@{/task/{id}/kudos(id=${task.id})}"
-                                       class="btn btn-sm btn-light w-100 mt-2 border position-relative"
-                                       th:classappend="${task.kudosCount >= 2 || (task.assignee != null && task.assignee.id == user.id)} ? 'disabled opacity-50'"
-                                       th:attr="aria-disabled=${task.kudosCount >= 2 || (task.assignee != null && task.assignee.id == user.id)} ? 'true' : 'false'">
-
+                                       class="btn btn-sm btn-light w-100 mt-1 border position-relative"
+                                       th:classappend="${task.kudosCount >= 2 || (task.assignee != null && task.assignee.id == user.id)} ? 'disabled opacity-50'">
                                         👍 Kudos
-
-                                        <span th:if="${task.kudosCount > 0}"
-                                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                              th:text="${task.kudosCount}">
-
-                                        </span>
+                                        <span th:if="${task.kudosCount > 0}" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" th:text="${task.kudosCount}"></span>
                                     </a>
-                                    <a th:href="@{/task/{id}/done(id=${task.id})}" class="btn btn-success btn-sm w-100 mt-1 py-0" style="font-size: 0.7rem;">Approve</a>
+
+                                    <div th:if="${task.assignee != null && task.assignee.id == user.id}">
+                                        <button class="btn btn-outline-secondary btn-sm w-100 mt-1 py-0 disabled" style="font-size: 0.7rem;">
+                                            <i class="bi bi-hourglass-split"></i> Waiting for Review
+                                        </button>
+                                    </div>
+
+                                    <div th:if="${task.assignee == null || task.assignee.id != user.id}">
+                                        <a th:href="@{/task/{id}/done(id=${task.id})}"
+                                           class="btn btn-success btn-sm w-100 mt-1 py-0"
+                                           style="font-size: 0.7rem;"
+                                           title="Review code and earn 15 XP">
+                                            <i class="bi bi-check-lg"></i> Approve (+15 XP)
+                                        </a>
+                                    </div>
+
                                 </div>
                             </div>
                             <button th:if="${reviewTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('review', this)">Show All</button>
@@ -377,45 +391,42 @@
     </div>
 </div>
 
-<div class="modal fade" id="createTaskModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form action="/task/create" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title">Create New Task</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title fw-bold" id="createTaskLabel">Create New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
 
+                <div class="modal-body">
                     <input type="hidden" name="projectId" th:value="${project.id}">
 
                     <div class="mb-3">
-                        <label class="form-label">Task Title</label>
-                        <label>
-                            <input type="text" name="title" class="form-control" required>
-                        </label>
+                        <label for="taskTitle" class="form-label fw-bold small text-uppercase text-muted">Task Title</label>
+                        <input type="text" id="taskTitle" name="title" class="form-control w-100" placeholder="e.g. Fix Login Bug" required>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <label>
-                            <textarea name="description" class="form-control" rows="3"></textarea>
-                        </label>
+                        <label for="taskDesc" class="form-label fw-bold small text-uppercase text-muted">Description</label>
+                        <textarea id="taskDesc" name="description" class="form-control w-100" rows="4" placeholder="Describe what needs to be done..."></textarea>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">XP Reward</label>
-                        <label>
-                            <select name="reward" class="form-select">
-                                <option value="10">Easy (10 XP)</option>
-                                <option value="30">Medium (30 XP)</option>
-                                <option value="50">Hard (50 XP)</option>
-                                <option value="100">Epic (100 XP)</option>
-                            </select>
-                        </label>
+                        <label for="taskReward" class="form-label fw-bold small text-uppercase text-muted">XP Reward</label>
+                        <select id="taskReward" name="reward" class="form-select w-100">
+                            <option value="10">Easy (10 XP)</option>
+                            <option value="30">Medium (30 XP)</option>
+                            <option value="50">Hard (50 XP)</option>
+                            <option value="100">Epic (100 XP)</option>
+                        </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4">Create Task</button>
                 </div>
             </form>
         </div>
