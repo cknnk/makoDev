@@ -2,16 +2,14 @@ package cz.kovalov.makoDev.data.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.List;
 
 @Entity
 @Data
 @Table(name = "projects")
-@Getter
-@Setter
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +24,8 @@ public class Project {
             name = "project_members",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<User> members;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -33,5 +33,7 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User owner;
 }

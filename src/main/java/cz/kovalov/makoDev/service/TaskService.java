@@ -15,6 +15,7 @@ public class TaskService {
 
     private static final int MAX_DAILY_XP = 150;
     private static final int REVIEW_REWARD = 15;
+    private static final int MAX_DAILY_KUDOS = 3;
 
     public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
@@ -43,16 +44,24 @@ public class TaskService {
     public void giveKudos(Long taskId, String username) {
         Task task = taskRepository.findById(taskId).orElseThrow();
         User liker = userRepository.findByUsername(username);
+
+        liker.checkAndResetDailyStats();
+
         User author = task.getAssignee();
 
         if (author != null && author.getId().equals(liker.getId())) { return; }
-        if (task.getKudosCount() >= 1) { return; }
+        if (liker.getDailyKudosGiven() >= MAX_DAILY_KUDOS) { return; }
+        if (task.getKudoGivers().contains(liker)) { return; }
 
-        task.setKudosCount(task.getKudosCount() + 1);
+        task.getKudoGivers().add(liker);
+
+        task.setKudosCount(task.getKudoGivers().size());
+
+        liker.setDailyKudosGiven(liker.getDailyKudosGiven() + 1);
+        userRepository.save(liker);
 
         if (author != null) {
             author.setXp(author.getXp() + 5);
-
             updateLevel(author);
             userRepository.save(author);
         }

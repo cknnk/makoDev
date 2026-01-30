@@ -2,6 +2,11 @@ package cz.kovalov.makoDev.data.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -23,9 +28,24 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User assignee;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Project project;
+
+    //set - to avoid duplicates
+    @ManyToMany
+    @JoinTable(
+            name = "task_kudos",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> kudoGivers = new HashSet<>();
 }

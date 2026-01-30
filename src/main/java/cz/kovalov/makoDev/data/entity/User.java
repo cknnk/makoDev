@@ -2,8 +2,8 @@ package cz.kovalov.makoDev.data.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,8 +11,6 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "users")
-@Getter
-@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,12 +26,17 @@ public class User {
 
     // New: Anti-Burnout
     private int dailyXpEarned = 0;
+    private int dailyKudosGiven = 0;
     private LocalDate lastActiveDate;
 
     @OneToMany(mappedBy = "assignee")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Task> tasks;
 
     @ManyToMany(mappedBy = "members")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Project> projects;
 
     @Column(name = "first_name")
@@ -49,6 +52,8 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "current_project_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Project currentProject;
 
     public String getInitials() {
@@ -72,6 +77,7 @@ public class User {
         LocalDate today = LocalDate.now();
         if (this.lastActiveDate == null || !this.lastActiveDate.equals(today)) {
             this.dailyXpEarned = 0;
+            this.dailyKudosGiven = 0;
             this.lastActiveDate = today;
         }
     }
