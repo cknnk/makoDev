@@ -34,8 +34,19 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-    public void sendToReview(Long taskId) {
+    public void sendToReview(Long taskId, String username) {
         Task task = taskRepository.findById(taskId).orElseThrow();
+        User currentUser = userRepository.findByUsername(username);
+
+        if (task.getAssignee() != null && !task.getAssignee().getId().equals(currentUser.getId())) {
+            return;
+        }
+
+        //if bug
+        if (task.getAssignee() == null) {
+            task.setAssignee(currentUser);
+        }
+
         task.setStatus("CODE_REVIEW");
         taskRepository.save(task);
     }
@@ -61,9 +72,7 @@ public class TaskService {
         userRepository.save(liker);
 
         if (author != null) {
-            author.setXp(author.getXp() + 5);
-            updateLevel(author);
-            userRepository.save(author);
+            addXpWithBurnoutProtection(author, 5);
         }
 
         taskRepository.save(task);
@@ -110,6 +119,11 @@ public class TaskService {
     }
 
     private void addXpWithBurnoutProtection(User user, int amount) {
+        java.time.DayOfWeek day = java.time.LocalDate.now().getDayOfWeek();
+        if (day == java.time.DayOfWeek.SATURDAY || day == java.time.DayOfWeek.SUNDAY) {
+            return;
+        }
+
         user.checkAndResetDailyStats();
 
         int currentDaily = user.getDailyXpEarned();

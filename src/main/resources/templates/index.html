@@ -309,11 +309,30 @@
                                           th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
                                           th:text="${task.rewardXp} + ' XP'"></span>
                                     <div class="mt-2">
-                                        <a th:href="@{/task/{id}/review(id=${task.id})}"
-                                           class="btn btn-outline-warning btn-sm w-100 py-0"
-                                           style="font-size: 0.7rem;">
-                                            <i class="bi bi-eye"></i> Request Review
-                                        </a>
+                                        <div th:if="${task.assignee != null && task.assignee.id == user.id}">
+                                            <a th:href="@{/task/{id}/review(id=${task.id})}"
+                                               class="btn btn-outline-warning btn-sm w-100 py-0"
+                                               style="font-size: 0.7rem;">
+                                                <i class="bi bi-eye"></i> Request Review
+                                            </a>
+                                        </div>
+
+                                        <div th:if="${task.assignee != null && task.assignee.id != user.id}" class="d-flex align-items-center justify-content-center bg-light rounded border py-1">
+                                            <div class="avatar-circle me-2 bg-secondary text-white"
+                                                 style="width: 20px; height: 20px; font-size: 0.5rem;"
+                                                 th:text="${task.assignee.initials}">AB</div>
+                                            <small class="text-muted" style="font-size: 0.7rem;">
+                                                Working: <span th:text="${task.assignee.username}">User</span>
+                                            </small>
+                                        </div>
+
+                                        <div th:if="${task.assignee == null}">
+                                            <a th:href="@{/task/{id}/start(id=${task.id})}"
+                                               class="btn btn-outline-primary btn-sm w-100 py-0"
+                                               style="font-size: 0.7rem;">
+                                                Claim Task
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

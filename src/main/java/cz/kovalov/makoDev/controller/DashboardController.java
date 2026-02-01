@@ -100,8 +100,8 @@ public class DashboardController {
     }
 
     @GetMapping("/task/{id}/review")
-    public String reviewTask(@PathVariable Long id) {
-        taskService.sendToReview(id);
+    public String reviewTask(@PathVariable Long id, java.security.Principal principal) {
+        taskService.sendToReview(id, principal.getName());
         return "redirect:/";
     }
 
