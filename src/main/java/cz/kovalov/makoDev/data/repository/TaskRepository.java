@@ -17,4 +17,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Integer getTotalKudosForUser(@Param("user") User user);
 
     List<Task> findByProject(Project project);
+
+    List<Task> findByAssigneeAndStatusOrderByIdDesc(User assignee, String status);
 }

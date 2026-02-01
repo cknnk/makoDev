@@ -72,7 +72,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body text-center p-4">
                     <h5 class="text-muted mb-3">Current Level</h5>
                     <div class="display-1 fw-bold text-primary mb-0" th:text="${user.level}">1</div>
@@ -88,6 +88,50 @@
                     </div>
                 </div>
             </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">Activity Log</h5>
+
+                <button th:if="${completedTasks.size() > 3}"
+                        id="toggleActivityBtn"
+                        class="btn btn-sm btn-outline-secondary py-0"
+                        onclick="toggleActivityLog()">
+                    Show All
+                </button>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="list-group list-group-flush">
+
+                    <div th:if="${#lists.isEmpty(completedTasks)}" class="p-4 text-center text-muted">
+                        <i class="bi bi-clipboard-x fs-1 d-block mb-2"></i>
+                        No activity yet.
+                    </div>
+
+                    <div th:each="task, iterStat : ${completedTasks}"
+                         class="list-group-item p-3"
+                         th:classappend="${iterStat.count > 3} ? 'extra-log d-none'">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div style="min-width: 0;"> <h6 class="fw-bold mb-1 text-truncate">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span th:text="${task.title}">Task</span>
+                            </h6>
+                                <small class="text-muted d-block text-truncate">
+                                    in <strong th:text="${task.project.name}">Prj</strong>
+                                    • <span class="text-success fw-bold" th:text="${task.rewardXp} + ' XP'">50 XP</span>
+                                </small>
+                            </div>
+
+                            <span th:if="${task.kudosCount > 0}" class="badge bg-danger bg-opacity-10 text-danger rounded-pill border border-danger border-opacity-25 ms-2">
+                                <i class="bi bi-heart-fill me-1"></i> <span th:text="${task.kudosCount}">2</span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
         <div class="col-md-8">
@@ -138,11 +182,10 @@
                 </div>
             </div>
 
-            <h4 class="fw-bold mt-5 mb-3">Participating Projects</h4>
+            <h4 class="fw-bold mt-4 mb-3">Participating Projects</h4>
 
             <div class="card shadow-sm border-0">
                 <div class="list-group list-group-flush">
-
                     <div th:if="${#lists.isEmpty(user.projects)}" class="p-4 text-center text-muted">
                         <i class="bi bi-folder-x fs-1 d-block mb-2"></i>
                         User is not participating in any projects yet.
@@ -159,13 +202,11 @@
                                     <p class="mb-0 small text-muted" th:text="${project.description}">No description</p>
                                 </div>
                             </div>
-
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
                                 Active Member
                             </span>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -249,5 +290,22 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function toggleActivityLog() {
+        const hiddenLogs = document.querySelectorAll('.extra-log');
+        const btn = document.getElementById('toggleActivityBtn');
+
+        hiddenLogs.forEach(log => {
+            if (log.classList.contains('d-none')) {
+                log.classList.remove('d-none');
+                btn.innerText = "Show Less";
+            } else {
+                log.classList.add('d-none');
+                btn.innerText = "Show All";
+            }
+        });
+    }
+</script>
 </body>
 </html>

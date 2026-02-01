@@ -1,5 +1,6 @@
 package cz.kovalov.makoDev.controller;
 
+import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class ProfileController {
@@ -67,14 +69,24 @@ public class ProfileController {
         //whose profile is it
         boolean isOwner = targetUser.getId().equals(currentUser.getId());
 
+        List<Task> allDoneTasks = taskRepository.findByAssigneeAndStatusOrderByIdDesc(targetUser, "DONE");
+        List<Task> displayTasks;
+
+        if (isOwner) {
+            displayTasks = allDoneTasks;
+        } else {
+            displayTasks = allDoneTasks.stream().limit(3).toList();
+        }
+
         model.addAttribute("user", targetUser);
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("isOwner", isOwner);
+
         model.addAttribute("tasksDone", tasksDone);
         model.addAttribute("totalKudos", totalKudos);
         model.addAttribute("currentProgress", currentProgress);
-        model.addAttribute("isOwner", isOwner);
 
-        //for avatar
-        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("completedTasks", displayTasks);
 
         return "profile";
     }
