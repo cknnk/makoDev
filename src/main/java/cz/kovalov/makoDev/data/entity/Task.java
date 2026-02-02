@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ public class Task {
     private Long id;
 
     private String title;
+
+    @Column(length = 5000)
     private String description;
 
     // "TODO", "IN_PROGRESS", "CODE_REVIEW", "DONE"
@@ -25,6 +28,9 @@ public class Task {
     private int rewardXp;
 
     private int kudosCount = 0;
+
+    private String gitLink;
+    private LocalDateTime completedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

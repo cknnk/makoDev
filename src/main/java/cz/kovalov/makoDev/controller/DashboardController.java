@@ -121,6 +121,7 @@ public class DashboardController {
     public String createTask(@RequestParam String title,
                              @RequestParam int reward,
                              @RequestParam String description,
+                             @RequestParam(required = false) String gitLink,
                              @RequestParam Long projectId,
                              java.security.Principal principal) {
 
@@ -136,6 +137,7 @@ public class DashboardController {
         task.setTitle(title);
         task.setDescription(description);
         task.setRewardXp(reward);
+        task.setGitLink(gitLink);
         task.setStatus("TODO");
         task.setAssignee(currentUser);
         task.setProject(project);

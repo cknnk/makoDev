@@ -108,6 +108,8 @@ public class TaskService {
         //maybe add a massage on lvl up?
 
         task.setStatus("DONE");
+        task.setCompletedAt(java.time.LocalDateTime.now());
+
         taskRepository.save(task);
     }
 

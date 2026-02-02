@@ -268,9 +268,15 @@
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
-                                                data-status="TODO"
+                                                th:data-status="${task.status}"
+                                                th:data-git="${task.gitLink}"
+                                                th:data-assignee="${task.assignee != null ? task.assignee.fullName : 'Unassigned'}"
+                                                th:data-assignee-avatar="${task.assignee != null ? task.assignee.initials : '?'}"
+                                                th:data-assignee-id="${task.assignee != null ? task.assignee.id : ''}"
+                                                th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
+
                                                 onclick="openTaskModal(this)">
-                                            <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye"></i>
                                         </button>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
@@ -300,7 +306,13 @@
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
-                                                data-status="IN PROGRESS"
+                                                th:data-status="${task.status}"
+                                                th:data-git="${task.gitLink}"
+                                                th:data-assignee="${task.assignee != null ? task.assignee.fullName : 'Unassigned'}"
+                                                th:data-assignee-avatar="${task.assignee != null ? task.assignee.initials : '?'}"
+                                                th:data-assignee-id="${task.assignee != null ? task.assignee.id : ''}"
+                                                th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
+
                                                 onclick="openTaskModal(this)">
                                             <i class="bi bi-eye"></i>
                                         </button>
@@ -355,7 +367,13 @@
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
-                                                data-status="REVIEW"
+                                                th:data-status="${task.status}"
+                                                th:data-git="${task.gitLink}"
+                                                th:data-assignee="${task.assignee != null ? task.assignee.fullName : 'Unassigned'}"
+                                                th:data-assignee-avatar="${task.assignee != null ? task.assignee.initials : '?'}"
+                                                th:data-assignee-id="${task.assignee != null ? task.assignee.id : ''}"
+                                                th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
+
                                                 onclick="openTaskModal(this)">
                                             <i class="bi bi-eye"></i>
                                         </button>
@@ -416,7 +434,13 @@
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
-                                                data-status="DONE"
+                                                th:data-status="${task.status}"
+                                                th:data-git="${task.gitLink}"
+                                                th:data-assignee="${task.assignee != null ? task.assignee.fullName : 'Unassigned'}"
+                                                th:data-assignee-avatar="${task.assignee != null ? task.assignee.initials : '?'}"
+                                                th:data-assignee-id="${task.assignee != null ? task.assignee.id : ''}"
+                                                th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
+
                                                 onclick="openTaskModal(this)">
                                             <i class="bi bi-eye"></i>
                                         </button>
@@ -438,68 +462,137 @@
 </div>
 
 <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form action="/task/create" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="createTaskLabel">Create New Task</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
+        <form action="/task/create" method="post">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold text-primary" id="createTaskLabel">
+                    <i class="bi bi-plus-square-dotted me-2"></i>Create Task
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <div class="modal-body">
-                    <input type="hidden" name="projectId" th:value="${project.id}">
+            <div class="modal-body">
+                <input type="hidden" name="projectId" th:value="${project.id}">
 
-                    <div class="mb-3">
-                        <label for="taskTitle" class="form-label fw-bold small text-uppercase text-muted">Task Title</label>
-                        <input type="text" id="taskTitle" name="title" class="form-control w-100" placeholder="e.g. Fix Login Bug" required>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="taskTitle" class="form-label fw-bold small text-uppercase text-muted">Summary</label>
+                            <input type="text" id="taskTitle" name="title" class="form-control" placeholder="What needs to be done?" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="taskDesc" class="form-label fw-bold small text-uppercase text-muted">Description</label>
+                                <small class="text-muted" style="font-size: 0.7rem;">
+                                    <i class="bi bi-markdown"></i> Markdown supported
+                                </small>
+                            </div>
+                            <textarea id="taskDesc" name="description" class="form-control" rows="8"
+                                      placeholder="Describe the task.&#10;- You can use **bold**&#10;- [Links](https://...)&#10;- `Code snippets`&#10;- Or paste image links!" required></textarea>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="taskDesc" class="form-label fw-bold small text-uppercase text-muted">Description</label>
-                        <textarea id="taskDesc" name="description" class="form-control w-100" rows="4" placeholder="Describe what needs to be done..."></textarea>
-                    </div>
+                    <div class="col-md-4 bg-light p-3 rounded">
+                        <div class="mb-4">
+                            <label for="taskReward" class="form-label fw-bold small text-uppercase text-muted">Complexity (XP)</label>
+                            <select id="taskReward" name="reward" class="form-select">
+                                <option value="10">Easy (10 XP)</option>
+                                <option value="30">Medium (30 XP)</option>
+                                <option value="50">Hard (50 XP)</option>
+                                <option value="100">Epic (100 XP)</option>
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label for="taskReward" class="form-label fw-bold small text-uppercase text-muted">XP Reward</label>
-                        <select id="taskReward" name="reward" class="form-select w-100">
-                            <option value="10">Easy (10 XP)</option>
-                            <option value="30">Medium (30 XP)</option>
-                            <option value="50">Hard (50 XP)</option>
-                            <option value="100">Epic (100 XP)</option>
-                        </select>
+                        <div class="mb-3">
+                            <label for="gitLink" class="form-label fw-bold small text-uppercase text-muted">Repository / Branch</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-github"></i></span>
+                                <input type="text" id="gitLink" name="gitLink" class="form-control" placeholder="https://github.com/...">
+                            </div>
+                            <div class="form-text" style="font-size: 0.7rem;">Optional link to code or branch.</div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary px-4">Create Task</button>
-                </div>
-            </form>
-        </div>
+            <div class="modal-footer bg-light border-top-0">
+                <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary px-4 fw-bold">Create</button>
+            </div>
+        </form>
+    </div>
     </div>
 </div>
 
 <div class="modal fade" id="universalTaskModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Task Title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
+        <div class="modal-header border-bottom-0 pb-0">
+            <div class="d-flex align-items-center gap-2">
+                <span id="modalBadge" class="badge bg-secondary">STATUS</span>
+                <small class="text-muted fw-bold">TASK DETAILS</small>
             </div>
-            <div class="modal-body">
-                <span id="modalBadge" class="badge bg-secondary mb-3">STATUS</span>
-                <p class="fw-bold mb-1">Description:</p>
-                <p id="modalDesc" class="text-muted">No description.</p>
-                <hr>
-                <div class="d-flex justify-content-between">
-                    <strong>Reward:</strong>
-                    <span id="modalXp" class="badge bg-warning text-dark">50 XP</span>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="container-fluid px-0">
+                <div class="row">
+                    <div class="col-md-8 border-end">
+                        <h3 class="fw-bold mb-3" id="modalTitle">Task Title</h3>
+
+                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Description</h6>
+                        <div id="modalDesc" class="text-secondary" style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.6;">
+                            Loading...
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Reward</h6>
+                            <span id="modalXp" class="badge bg-warning text-dark border border-warning fs-6">50 XP</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2" id="modalPeopleLabel">Assignee</h6>
+
+                            <a id="modalAssigneeLink" href="#" class="text-decoration-none text-dark">
+                                <div class="d-flex align-items-center bg-light rounded px-2 py-2 border transition-hover">
+                                    <div class="avatar-circle me-2 bg-primary text-white"
+                                         style="width: 24px; height: 24px; font-size: 0.7rem;"
+                                         id="modalAvatar">MK</div>
+                                    <span class="small fw-bold" id="modalAssignee">User Name</span>
+
+                                    <i class="bi bi-box-arrow-up-right ms-auto text-muted small"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div id="modalGitBlock" class="mb-4 d-none">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Repository</h6>
+                            <a id="modalGitLink" href="#" target="_blank" class="btn btn-outline-dark btn-sm w-100 text-truncate">
+                                <i class="bi bi-github me-2"></i>Open Code
+                            </a>
+                        </div>
+
+                        <div id="modalCompletedBlock" class="mb-4 d-none">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Completed</h6>
+                            <div class="text-success small fw-bold">
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                <span id="modalCompletedDate">Date</span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
         </div>
+
+        <div class="modal-footer bg-light border-top-0 py-2">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
     </div>
 </div>
 
@@ -689,15 +782,63 @@
     const taskModal = new bootstrap.Modal(document.getElementById('universalTaskModal'));
 
     function openTaskModal(element) {
+        // getting data
         const title = element.getAttribute('data-title');
         const desc = element.getAttribute('data-desc');
         const xp = element.getAttribute('data-xp');
         const status = element.getAttribute('data-status');
 
+        const git = element.getAttribute('data-git');
+        const assigneeName = element.getAttribute('data-assignee');
+        const avatar = element.getAttribute('data-assignee-avatar');
+        const assigneeId = element.getAttribute('data-assignee-id'); // ID юзера
+        const completed = element.getAttribute('data-completed');
+
+        // filling fields
         document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalDesc').innerText = desc ? desc : "No detailed description provided.";
+        document.getElementById('modalDesc').innerText = desc ? desc : "No description provided.";
         document.getElementById('modalXp').innerText = xp + ' XP';
         document.getElementById('modalBadge').innerText = status;
+
+        // logic assignee / creator
+        const label = document.getElementById('modalPeopleLabel');
+        if (status === 'TODO') {
+            label.innerText = 'Creator';
+        } else {
+            label.innerText = 'Assignee';
+        }
+
+        // link to profile
+        document.getElementById('modalAssignee').innerText = assigneeName;
+        document.getElementById('modalAvatar').innerText = avatar;
+
+        const profileLink = document.getElementById('modalAssigneeLink');
+        if (assigneeId) {
+            profileLink.href = '/profile/' + assigneeId;
+            profileLink.style.pointerEvents = 'auto';
+        } else {
+            profileLink.href = '#';
+            profileLink.style.pointerEvents = 'none';
+        }
+
+        // git link
+        const gitBlock = document.getElementById('modalGitBlock');
+        const gitLinkEl = document.getElementById('modalGitLink');
+        if (git && git.trim() !== "") {
+            gitBlock.classList.remove('d-none');
+            gitLinkEl.href = git;
+        } else {
+            gitBlock.classList.add('d-none');
+        }
+
+        // completed date
+        const completedBlock = document.getElementById('modalCompletedBlock');
+        if (completed && completed.trim() !== "") {
+            completedBlock.classList.remove('d-none');
+            document.getElementById('modalCompletedDate').innerText = completed;
+        } else {
+            completedBlock.classList.add('d-none');
+        }
 
         taskModal.show();
     }

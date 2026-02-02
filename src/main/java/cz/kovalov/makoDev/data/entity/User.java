@@ -67,8 +67,8 @@ public class User {
     }
 
     public String getFullName() {
-        if (firstName != null && lastName != null) {
-            return firstName + " " + lastName;
+        if (firstName != null && !firstName.isEmpty()) {
+            return firstName + " " + (lastName != null ? lastName : "");
         }
         return username;
     }
