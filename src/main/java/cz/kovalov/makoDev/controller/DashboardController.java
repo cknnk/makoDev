@@ -121,6 +121,7 @@ public class DashboardController {
     public String createTask(@RequestParam String title,
                              @RequestParam int reward,
                              @RequestParam String description,
+                             @RequestParam String priority,
                              @RequestParam(required = false) String gitLink,
                              @RequestParam Long projectId,
                              java.security.Principal principal) {
@@ -141,6 +142,12 @@ public class DashboardController {
         task.setStatus("TODO");
         task.setAssignee(currentUser);
         task.setProject(project);
+
+        if ("HIGH".equals(priority) || "LOW".equals(priority)) {
+            task.setPriority(priority);
+        } else {
+            task.setPriority("MEDIUM");
+        }
 
         taskRepository.save(task);
         return "redirect:/";

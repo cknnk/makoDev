@@ -32,6 +32,8 @@ public class Task {
     private String gitLink;
     private LocalDateTime completedAt;
 
+    private String priority = "MEDIUM"; // LOW, MEDIUM, HIGH
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @ToString.Exclude

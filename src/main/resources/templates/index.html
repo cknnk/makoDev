@@ -258,14 +258,24 @@
                     <div class="card bg-light border-0 h-100">
                         <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3">TO DO</div>
                         <div class="card-body p-2">
+
                             <div th:each="task, iterStat : ${todoTasks}"
-                                 class="card mb-2 shadow-sm task-card"
+                                 class="card mb-2 shadow-sm task-card border-secondary border-start-4"
                                  th:classappend="${iterStat.count > 5} ? 'extra-task-todo d-none'">
+
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between">
-                                        <h6 class="card-title text-truncate" style="max-width: 150px;" th:text="${task.title}"></h6>
+                                        <h6 class="card-title text-truncate" style="max-width: 150px;">
+                                            <i th:if="${task.priority == 'HIGH'}" class="bi bi-arrow-up-circle-fill text-danger me-1" title="High Priority"></i>
+                                            <i th:if="${task.priority == 'MEDIUM'}" class="bi bi-dash-circle text-warning me-1" title="Medium Priority"></i>
+                                            <i th:if="${task.priority == 'LOW'}" class="bi bi-arrow-down-circle text-success me-1" title="Low Priority"></i>
+
+                                            <span th:text="${task.title}">Title</span>
+                                        </h6>
+
                                         <button class="btn btn-link p-0 text-muted"
                                                 th:data-id="${task.id}"
+                                                th:data-priority="${task.priority}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -277,7 +287,7 @@
                                                 th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
 
                                                 onclick="openTaskModal(this)">
-                                        <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye"></i>
                                         </button>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
@@ -307,13 +317,20 @@
                         <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-primary">IN PROGRESS</div>
                         <div class="card-body p-2">
                             <div th:each="task, iterStat : ${progressTasks}"
-                                 class="card mb-2 shadow-sm task-card border-primary"
-                                 th:classappend="${iterStat.count > 5} ? 'extra-task-progress d-none'">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="card-title text-truncate" th:text="${task.title}"></h6>
+                                 class="card mb-2 shadow-sm task-card border-primary border-start-4"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-progress d-none'"> <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="card-title text-truncate" style="max-width: 150px;">
+                                        <i th:if="${task.priority == 'HIGH'}" class="bi bi-arrow-up-circle-fill text-danger me-1"></i>
+                                        <i th:if="${task.priority == 'MEDIUM'}" class="bi bi-dash-circle text-warning me-1"></i>
+                                        <i th:if="${task.priority == 'LOW'}" class="bi bi-arrow-down-circle text-success me-1"></i>
+
+                                        <span th:text="${task.title}">Title</span>
+                                    </h6>
+
                                         <button class="btn btn-link p-0 text-muted"
                                                 th:data-id="${task.id}"
+                                                th:data-priority="${task.priority}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -378,13 +395,20 @@
                         <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-warning">REVIEW</div>
                         <div class="card-body p-2">
                             <div th:each="task, iterStat : ${reviewTasks}"
-                                 class="card mb-2 shadow-sm task-card border-warning"
-                                 th:classappend="${iterStat.count > 5} ? 'extra-task-review d-none'">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="card-title text-truncate" th:text="${task.title}"></h6>
+                                 class="card mb-2 shadow-sm task-card border-warning border-start-4"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-review d-none'"> <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="card-title text-truncate" style="max-width: 150px;">
+                                        <i th:if="${task.priority == 'HIGH'}" class="bi bi-arrow-up-circle-fill text-danger me-1"></i>
+                                        <i th:if="${task.priority == 'MEDIUM'}" class="bi bi-dash-circle text-warning me-1"></i>
+                                        <i th:if="${task.priority == 'LOW'}" class="bi bi-arrow-down-circle text-success me-1"></i>
+
+                                        <span th:text="${task.title}">Title</span>
+                                    </h6>
+
                                         <button class="btn btn-link p-0 text-muted"
                                                 th:data-id="${task.id}"
+                                                th:data-priority="${task.priority}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -454,13 +478,20 @@
                         <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-success">DONE</div>
                         <div class="card-body p-2">
                             <div th:each="task, iterStat : ${doneTasks}"
-                                 class="card mb-2 shadow-sm opacity-75 task-card"
-                                 th:classappend="${iterStat.count > 5} ? 'extra-task-done d-none'">
-                                <div class="card-body p-2">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="card-title text-decoration-line-through text-muted" th:text="${task.title}"></h6>
+                                 class="card mb-2 shadow-sm opacity-75 task-card border-success border-start-4"
+                                 th:classappend="${iterStat.count > 5} ? 'extra-task-done d-none'"> <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="card-title text-truncate" style="max-width: 150px;">
+                                        <i th:if="${task.priority == 'HIGH'}" class="bi bi-arrow-up-circle-fill text-danger me-1"></i>
+                                        <i th:if="${task.priority == 'MEDIUM'}" class="bi bi-dash-circle text-warning me-1"></i>
+                                        <i th:if="${task.priority == 'LOW'}" class="bi bi-arrow-down-circle text-success me-1"></i>
+
+                                        <span th:text="${task.title}">Title</span>
+                                    </h6>
+
                                         <button class="btn btn-link p-0 text-muted"
                                                 th:data-id="${task.id}"
+                                                th:data-priority="${task.priority}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -523,12 +554,9 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="taskDesc" class="form-label fw-bold small text-uppercase text-muted">Description</label>
-                                <small class="text-muted" style="font-size: 0.7rem;">
-                                    <i class="bi bi-markdown"></i> Markdown supported
-                                </small>
                             </div>
                             <textarea id="taskDesc" name="description" class="form-control" rows="8"
-                                      placeholder="Describe the task.&#10;- You can use **bold**&#10;- [Links](https://...)&#10;- `Code snippets`&#10;- Or paste image links!" required></textarea>
+                                      placeholder="Describe the task." required></textarea>
                         </div>
                     </div>
 
@@ -540,6 +568,15 @@
                                 <option value="30">Medium (30 XP)</option>
                                 <option value="50">Hard (50 XP)</option>
                                 <option value="100">Epic (100 XP)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="taskPriority" class="form-label fw-bold small text-uppercase text-muted">Priority</label>
+                            <select id="taskPriority" name="priority" class="form-select">
+                                <option value="LOW">🟢 Low</option>
+                                <option value="MEDIUM" selected>🟡 Medium</option>
+                                <option value="HIGH">🔴 High</option>
                             </select>
                         </div>
 
@@ -569,7 +606,10 @@
         <div class="modal-header border-bottom-0 pb-0">
             <div class="d-flex align-items-center gap-2">
                 <span id="modalBadge" class="badge bg-secondary">STATUS</span>
-                <small class="text-muted fw-bold">TASK DETAILS</small>
+
+                <span id="modalPriority" class="badge border">PRIORITY</span>
+
+                <small class="text-muted fw-bold ms-2">TASK DETAILS</small>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
@@ -842,6 +882,7 @@
     function openTaskModal(element) {
         // data
         const id = element.getAttribute('data-id');
+        const priority = element.getAttribute('data-priority');
         const title = element.getAttribute('data-title');
         const desc = element.getAttribute('data-desc');
         const xp = element.getAttribute('data-xp');
@@ -923,7 +964,23 @@
                 commentsList.scrollTop = commentsList.scrollHeight;
             }, 200);
         }
-        // ----------------------------------------
+
+        //priority
+        const priorityBadge = document.getElementById('modalPriority');
+        priorityBadge.innerText = priority;
+
+        priorityBadge.className = 'badge border me-1';
+
+        if (priority === 'HIGH') {
+            priorityBadge.classList.add('bg-danger', 'bg-opacity-10', 'text-danger', 'border-danger');
+            priorityBadge.innerHTML = '<i class="bi bi-fire me-1"></i> High';
+        } else if (priority === 'MEDIUM') {
+            priorityBadge.classList.add('bg-warning', 'bg-opacity-10', 'text-warning', 'border-warning');
+            priorityBadge.innerHTML = '<i class="bi bi-list me-1"></i> Medium';
+        } else {
+            priorityBadge.classList.add('bg-success', 'bg-opacity-10', 'text-success', 'border-success');
+            priorityBadge.innerHTML = '<i class="bi bi-arrow-down me-1"></i> Low';
+        }
 
         taskModal.show();
     }
