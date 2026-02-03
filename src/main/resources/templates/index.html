@@ -189,7 +189,7 @@
                 </div>
 
                 <div class="text-center text-muted small mt-2">
-                    MakoDev v1
+                    MakoDev v1.0
                 </div>
             </div>
         </div>
@@ -265,6 +265,7 @@
                                     <div class="d-flex justify-content-between">
                                         <h6 class="card-title text-truncate" style="max-width: 150px;" th:text="${task.title}"></h6>
                                         <button class="btn btn-link p-0 text-muted"
+                                                th:data-id="${task.id}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -285,6 +286,15 @@
                                                th:text="${task.rewardXp} + ' XP'"></small>
                                         <a th:href="@{/task/{id}/start(id=${task.id})}" class="btn btn-outline-primary btn-sm py-0" style="font-size: 0.7rem;">Start</a>
                                     </div>
+
+                                    <div class="d-none task-comments-data">
+                                        <div th:each="comment : ${task.comments}" class="comment-item"
+                                             th:data-author="${comment.author.fullName}"
+                                             th:data-avatar="${comment.author.initials}"
+                                             th:data-date="${comment.formattedDate}"
+                                             th:text="${comment.text}"> </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <button th:if="${todoTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('todo', this)">Show All</button>
@@ -303,6 +313,7 @@
                                     <div class="d-flex justify-content-between">
                                         <h6 class="card-title text-truncate" th:text="${task.title}"></h6>
                                         <button class="btn btn-link p-0 text-muted"
+                                                th:data-id="${task.id}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -346,6 +357,15 @@
                                             </a>
                                         </div>
                                     </div>
+
+                                    <div class="d-none task-comments-data">
+                                        <div th:each="comment : ${task.comments}" class="comment-item"
+                                             th:data-author="${comment.author.fullName}"
+                                             th:data-avatar="${comment.author.initials}"
+                                             th:data-date="${comment.formattedDate}"
+                                             th:text="${comment.text}"> </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <button th:if="${progressTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('progress', this)">Show All</button>
@@ -364,6 +384,7 @@
                                     <div class="d-flex justify-content-between">
                                         <h6 class="card-title text-truncate" th:text="${task.title}"></h6>
                                         <button class="btn btn-link p-0 text-muted"
+                                                th:data-id="${task.id}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -413,6 +434,14 @@
                                         </a>
                                     </div>
 
+                                    <div class="d-none task-comments-data">
+                                        <div th:each="comment : ${task.comments}" class="comment-item"
+                                             th:data-author="${comment.author.fullName}"
+                                             th:data-avatar="${comment.author.initials}"
+                                             th:data-date="${comment.formattedDate}"
+                                             th:text="${comment.text}"> </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <button th:if="${reviewTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('review', this)">Show All</button>
@@ -431,6 +460,7 @@
                                     <div class="d-flex justify-content-between">
                                         <h6 class="card-title text-decoration-line-through text-muted" th:text="${task.title}"></h6>
                                         <button class="btn btn-link p-0 text-muted"
+                                                th:data-id="${task.id}"
                                                 th:data-title="${task.title}"
                                                 th:data-desc="${task.description}"
                                                 th:data-xp="${task.rewardXp}"
@@ -446,6 +476,15 @@
                                         </button>
                                     </div>
                                     <small class="text-success fw-bold">+<span th:text="${task.rewardXp}"></span> XP</small>
+
+                                    <div class="d-none task-comments-data">
+                                        <div th:each="comment : ${task.comments}" class="comment-item"
+                                             th:data-author="${comment.author.fullName}"
+                                             th:data-avatar="${comment.author.initials}"
+                                             th:data-date="${comment.formattedDate}"
+                                             th:text="${comment.text}"> </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <button th:if="${doneTasks.size() > 5}" class="btn btn-sm btn-link w-100 text-decoration-none mt-2" onclick="toggleTasks('done', this)">Show All</button>
@@ -583,6 +622,25 @@
                                 <span id="modalCompletedDate">Date</span>
                             </div>
                         </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">
+                            <i class="bi bi-chat-left-text me-1"></i> Comments
+                        </h6>
+
+                        <div id="modalCommentsList" class="mb-3" style="max-height: 250px; overflow-y: auto;">
+                        </div>
+
+                        <form action="/task/comment" method="post" class="mt-2">
+                            <input type="hidden" name="taskId" id="modalCommentTaskId">
+                            <div class="input-group">
+                                <input type="text" name="text" class="form-control form-control-sm" placeholder="Write a comment..." required autocomplete="off" aria-label="Write a comment">
+                                <button class="btn btn-outline-primary btn-sm" type="submit">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                        </form>
 
                     </div>
                 </div>
@@ -782,56 +840,40 @@
     const taskModal = new bootstrap.Modal(document.getElementById('universalTaskModal'));
 
     function openTaskModal(element) {
-        // getting data
+        // data
+        const id = element.getAttribute('data-id');
         const title = element.getAttribute('data-title');
         const desc = element.getAttribute('data-desc');
         const xp = element.getAttribute('data-xp');
         const status = element.getAttribute('data-status');
 
         const git = element.getAttribute('data-git');
-        const assigneeName = element.getAttribute('data-assignee');
+        const assignee = element.getAttribute('data-assignee');
         const avatar = element.getAttribute('data-assignee-avatar');
-        const assigneeId = element.getAttribute('data-assignee-id'); // ID юзера
         const completed = element.getAttribute('data-completed');
 
-        // filling fields
+        // filling modal
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalDesc').innerText = desc ? desc : "No description provided.";
         document.getElementById('modalXp').innerText = xp + ' XP';
         document.getElementById('modalBadge').innerText = status;
-
-        // logic assignee / creator
-        const label = document.getElementById('modalPeopleLabel');
-        if (status === 'TODO') {
-            label.innerText = 'Creator';
-        } else {
-            label.innerText = 'Assignee';
-        }
-
-        // link to profile
-        document.getElementById('modalAssignee').innerText = assigneeName;
+        document.getElementById('modalAssignee').innerText = assignee;
         document.getElementById('modalAvatar').innerText = avatar;
 
-        const profileLink = document.getElementById('modalAssigneeLink');
-        if (assigneeId) {
-            profileLink.href = '/profile/' + assigneeId;
-            profileLink.style.pointerEvents = 'auto';
-        } else {
-            profileLink.href = '#';
-            profileLink.style.pointerEvents = 'none';
-        }
+        // id for comments
+        document.getElementById('modalCommentTaskId').value = id;
+        // ----------------------------------------
 
-        // git link
+        // git
         const gitBlock = document.getElementById('modalGitBlock');
-        const gitLinkEl = document.getElementById('modalGitLink');
         if (git && git.trim() !== "") {
             gitBlock.classList.remove('d-none');
-            gitLinkEl.href = git;
+            document.getElementById('modalGitLink').href = git;
         } else {
             gitBlock.classList.add('d-none');
         }
 
-        // completed date
+        // completed
         const completedBlock = document.getElementById('modalCompletedBlock');
         if (completed && completed.trim() !== "") {
             completedBlock.classList.remove('d-none');
@@ -839,6 +881,49 @@
         } else {
             completedBlock.classList.add('d-none');
         }
+
+        // comments logic
+        const commentsList = document.getElementById('modalCommentsList');
+        commentsList.innerHTML = ''; //clearing
+
+        // finding hidden items
+        const cardBody = element.closest('.card-body');
+        const hiddenComments = cardBody.querySelectorAll('.comment-item');
+
+        if (hiddenComments.length === 0) {
+            commentsList.innerHTML = '<small class="text-muted d-block text-center py-2">No comments yet.</small>';
+        } else {
+            hiddenComments.forEach(comment => {
+                const author = comment.getAttribute('data-author');
+                const userAvatar = comment.getAttribute('data-avatar');
+                const date = comment.getAttribute('data-date');
+                const text = comment.innerText;
+
+                // html for comment
+                const commentHtml = `
+                    <div class="d-flex mb-2">
+                        <div class="avatar-circle me-2 bg-light text-secondary border"
+                             style="width: 24px; height: 24px; font-size: 0.6rem; flex-shrink: 0;">
+                            ${userAvatar}
+                        </div>
+                        <div class="bg-light rounded p-2 w-100">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold small text-dark">${author}</span>
+                                <small class="text-muted" style="font-size: 0.6rem;">${date}</small>
+                            </div>
+                            <p class="mb-0 small text-secondary" style="line-height: 1.3;">${text}</p>
+                        </div>
+                    </div>
+                `;
+                commentsList.innerHTML += commentHtml;
+            });
+
+            // moving to the last one
+            setTimeout(() => {
+                commentsList.scrollTop = commentsList.scrollHeight;
+            }, 200);
+        }
+        // ----------------------------------------
 
         taskModal.show();
     }

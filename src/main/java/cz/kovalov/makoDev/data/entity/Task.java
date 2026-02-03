@@ -54,4 +54,10 @@ public class Task {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<User> kudoGivers = new HashSet<>();
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt ASC")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private java.util.List<Comment> comments = new java.util.ArrayList<>();
 }

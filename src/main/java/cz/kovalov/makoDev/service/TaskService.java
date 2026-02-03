@@ -1,5 +1,6 @@
 package cz.kovalov.makoDev.service;
 
+import cz.kovalov.makoDev.data.entity.Comment;
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
@@ -145,5 +146,19 @@ public class TaskService {
             updateLevel(user);
             userRepository.save(user);
         }
+    }
+
+    @Transactional
+    public void addComment(Long taskId, String text, String username) {
+        Task task = taskRepository.findById(taskId).orElseThrow();
+        User author = userRepository.findByUsername(username);
+
+        Comment comment = new Comment();
+        comment.setText(text);
+        comment.setTask(task);
+        comment.setAuthor(author);
+
+        task.getComments().add(comment);
+        taskRepository.save(task);
     }
 }

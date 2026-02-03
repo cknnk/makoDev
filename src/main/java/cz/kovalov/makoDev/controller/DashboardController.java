@@ -145,4 +145,12 @@ public class DashboardController {
         taskRepository.save(task);
         return "redirect:/";
     }
+
+    @PostMapping("/task/comment")
+    public String addComment(@RequestParam Long taskId,
+                             @RequestParam String text,
+                             java.security.Principal principal) {
+        taskService.addComment(taskId, text, principal.getName());
+        return "redirect:/";
+    }
 }
