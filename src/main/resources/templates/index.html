@@ -136,7 +136,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <small class="fw-bold text-uppercase text-muted" style="font-size: 0.65rem;">Daily Energy</small>
                             <small class="fw-bold" th:classappend="${dailyXp >= maxDailyXp} ? 'text-danger' : 'text-primary'">
-                                <span th:text="${dailyXp}">0</span> / <span th:text="${maxDailyXp}">150</span>
+                                <span th:text="${dailyXp}">0</span> / <span th:text="${maxDailyXp}">100</span>
                             </small>
                         </div>
                         <div class="progress" style="height: 6px;">
@@ -317,8 +317,10 @@
                         <div class="card-header text-center fw-bold bg-white border-bottom-0 py-3 text-primary">IN PROGRESS</div>
                         <div class="card-body p-2">
                             <div th:each="task, iterStat : ${progressTasks}"
-                                 class="card mb-2 shadow-sm task-card border-primary border-start-4"
-                                 th:classappend="${iterStat.count > 5} ? 'extra-task-progress d-none'"> <div class="card-body p-2">
+                                 class="card mb-2 shadow-sm task-card"
+                                 th:classappend="${(iterStat.count > 5 ? 'extra-task-progress d-none ' : '') +
+                                 (task.status == 'CHANGES_REQUESTED' ? 'border-danger border-start-4' : 'border-primary border-start-4')}">
+                                <div class="card-body p-2">
                                 <div class="d-flex justify-content-between">
                                     <h6 class="card-title text-truncate" style="max-width: 150px;">
                                         <i th:if="${task.priority == 'HIGH'}" class="bi bi-arrow-up-circle-fill text-danger me-1"></i>
@@ -345,9 +347,17 @@
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </div>
+
+                                    <div th:if="${task.status == 'CHANGES_REQUESTED'}" class="mb-2">
+                                        <span class="badge bg-danger w-100">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> FIX REQUIRED
+                                        </span>
+                                    </div>
+
                                     <span class="badge"
                                           th:classappend="${task.rewardXp <= 10 ? 'bg-success' : (task.rewardXp <= 30 ? 'bg-info' : (task.rewardXp <= 50 ? 'bg-warning text-dark' : 'bg-danger'))}"
                                           th:text="${task.rewardXp} + ' XP'"></span>
+
                                     <div class="mt-2">
                                         <div th:if="${task.assignee != null && task.assignee.id == user.id}">
                                             <a th:href="@{/task/{id}/review(id=${task.id})}"
@@ -450,13 +460,24 @@
                                     </div>
 
                                     <div th:if="${task.assignee == null || task.assignee.id != user.id}">
+                                        <div class="d-flex gap-1 mt-1">
+
+                                          <button type="button"
+                                                  class="btn btn-outline-danger btn-sm w-50 py-0"
+                                                  style="font-size: 0.7rem;"
+                                                  th:onclick="'openReturnModal(' + ${task.id} + ')'">
+                                              <i class="bi bi-arrow-counterclockwise"></i> Return
+                                          </button>
+
                                         <a th:href="@{/task/{id}/done(id=${task.id})}"
-                                           class="btn btn-success btn-sm w-100 mt-1 py-0"
+                                           class="btn btn-success btn-sm w-50 py-0"
                                            style="font-size: 0.7rem;"
-                                           title="Review code and earn 15 XP">
-                                            <i class="bi bi-check-lg"></i> Approve (+15 XP)
+                                           title="Approve and give XP">
+                                            <i class="bi bi-check-lg"></i> Approve
                                         </a>
                                     </div>
+
+                                </div>
 
                                     <div class="d-none task-comments-data">
                                         <div th:each="comment : ${task.comments}" class="comment-item"
@@ -842,6 +863,36 @@
     </div>
 </div>
 
+<div class="modal fade" id="returnTaskModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="/task/return" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-octagon-fill me-2"></i>Request Changes</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="taskId" id="returnTaskId">
+
+                    <label for="returnReason" class="form-label mb-2">Why are you returning this task?</label>
+                    <textarea id="returnReason"
+                              name="reason"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Describe what needs to be fixed..."
+                              required
+                              autofocus></textarea>
+                    <div class="form-text">This will be posted as a comment and the task will move back to 'In Progress'.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Return Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     function toggleEditMode() {
         const viewMode = document.getElementById('readmeView');
@@ -983,6 +1034,15 @@
         }
 
         taskModal.show();
+    }
+
+    const returnModal = new bootstrap.Modal(document.getElementById('returnTaskModal'));
+
+    //so I don't see yellow warning
+    // noinspection JSUnusedGlobalSymbols
+    function openReturnModal(taskId) {
+        document.getElementById('returnTaskId').value = taskId;
+        returnModal.show();
     }
 </script>
 

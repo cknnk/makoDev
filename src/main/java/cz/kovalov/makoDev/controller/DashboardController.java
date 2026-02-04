@@ -49,7 +49,7 @@ public class DashboardController {
         userRepository.save(currentUser);
 
         model.addAttribute("dailyXp", currentUser.getDailyXpEarned());
-        model.addAttribute("maxDailyXp", 150);
+        model.addAttribute("maxDailyXp", 100);
 
         java.time.DayOfWeek day = java.time.LocalDate.now().getDayOfWeek();
         boolean isWeekend = (day == java.time.DayOfWeek.SATURDAY || day == java.time.DayOfWeek.SUNDAY);
@@ -72,7 +72,9 @@ public class DashboardController {
         List<Task> projectTasks = taskRepository.findByProject(activeProject);
 
         model.addAttribute("todoTasks", projectTasks.stream().filter(t -> "TODO".equals(t.getStatus())).toList());
-        model.addAttribute("progressTasks", projectTasks.stream().filter(t -> "IN_PROGRESS".equals(t.getStatus())).toList());
+        model.addAttribute("progressTasks", projectTasks.stream()
+                .filter(t -> "IN_PROGRESS".equals(t.getStatus()) || "CHANGES_REQUESTED".equals(t.getStatus()))
+                .toList());
         model.addAttribute("reviewTasks", projectTasks.stream().filter(t -> "CODE_REVIEW".equals(t.getStatus())).toList());
         model.addAttribute("doneTasks", projectTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
@@ -158,6 +160,14 @@ public class DashboardController {
                              @RequestParam String text,
                              java.security.Principal principal) {
         taskService.addComment(taskId, text, principal.getName());
+        return "redirect:/";
+    }
+
+    @PostMapping("/task/return")
+    public String returnTask(@RequestParam Long taskId,
+                             @RequestParam String reason,
+                             java.security.Principal principal) {
+        taskService.returnTask(taskId, reason, principal.getName());
         return "redirect:/";
     }
 }

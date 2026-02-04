@@ -14,7 +14,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
-    private static final int MAX_DAILY_XP = 150;
+    private static final int MAX_DAILY_XP = 100;
     private static final int REVIEW_REWARD = 15;
     private static final int MAX_DAILY_KUDOS = 3;
 
@@ -157,6 +157,22 @@ public class TaskService {
         comment.setText(text);
         comment.setTask(task);
         comment.setAuthor(author);
+
+        task.getComments().add(comment);
+        taskRepository.save(task);
+    }
+
+    @Transactional
+    public void returnTask(Long taskId, String reason, String reviewerUsername) {
+        Task task = taskRepository.findById(taskId).orElseThrow();
+        User reviewer = userRepository.findByUsername(reviewerUsername);
+
+        task.setStatus("CHANGES_REQUESTED");
+
+        Comment comment = new Comment();
+        comment.setText("🔴 REQUESTED CHANGES:\n" + reason);
+        comment.setAuthor(reviewer);
+        comment.setTask(task);
 
         task.getComments().add(comment);
         taskRepository.save(task);
