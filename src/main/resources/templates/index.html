@@ -956,6 +956,13 @@
         document.getElementById('modalCommentTaskId').value = id;
         // ----------------------------------------
 
+        const label = document.getElementById('modalPeopleLabel');
+        if (status === 'TODO') {
+            label.innerText = 'Creator';
+        } else {
+            label.innerText = 'Assignee';
+        }
+
         // git
         const gitBlock = document.getElementById('modalGitBlock');
         if (git && git.trim() !== "") {
