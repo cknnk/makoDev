@@ -229,11 +229,21 @@
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label for="firstName" class="form-label">First Name</label>
-                            <input type="text" id="firstName" name="firstName" class="form-control" th:value="${user.firstName}">
+                            <input type="text"
+                                   id="firstName"
+                                   name="firstName"
+                                   class="form-control"
+                                   th:value="${user.firstName}"
+                                   maxlength="15">
                         </div>
                         <div class="col-md-6">
                             <label for="lastName" class="form-label">Last Name</label>
-                            <input type="text" id="lastName" name="lastName" class="form-control" th:value="${user.lastName}">
+                            <input type="text"
+                                   id="lastName"
+                                   name="lastName"
+                                   class="form-control"
+                                   th:value="${user.lastName}"
+                                   maxlength="15">
                         </div>
                     </div>
 
