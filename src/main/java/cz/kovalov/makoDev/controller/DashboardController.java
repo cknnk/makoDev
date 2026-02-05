@@ -170,4 +170,14 @@ public class DashboardController {
         taskService.returnTask(taskId, reason, principal.getName());
         return "redirect:/";
     }
+
+    @PostMapping("/task/delete")
+    public String deleteTask(@RequestParam Long taskId, jakarta.servlet.http.HttpServletRequest request) {
+        taskRepository.deleteById(taskId);
+
+        String referer = request.getHeader("Referer");
+
+        if (referer == null || referer.isEmpty()) { return "redirect:/"; }
+        return "redirect:" + referer;
+    }
 }

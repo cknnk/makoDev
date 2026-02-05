@@ -720,8 +720,16 @@
             </div>
         </div>
 
-        <div class="modal-footer bg-light border-top-0 py-2">
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer bg-light border-top-0 py-2 d-flex">
+
+            <form id="modalDeleteForm" action="/task/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                <input type="hidden" name="taskId" id="modalDeleteTaskId">
+                <button type="submit" class="btn btn-outline-danger btn-sm border-0">
+                    <i class="bi bi-trash-fill"></i> Delete
+                </button>
+            </form>
+
+            <button type="button" class="btn btn-secondary btn-sm ms-auto" data-bs-dismiss="modal">Close</button>
         </div>
     </div>
     </div>
@@ -964,6 +972,7 @@
         document.getElementById('modalBadge').innerText = status;
         document.getElementById('modalAssignee').innerText = assignee;
         document.getElementById('modalAvatar').innerText = avatar;
+        document.getElementById('modalDeleteTaskId').value = id;
 
         // id for comments
         document.getElementById('modalCommentTaskId').value = id;
@@ -1080,6 +1089,17 @@
             }
         } else {
             reviewerBlock.classList.add('d-none');
+        }
+
+        // deleting logic
+        const deleteForm = document.getElementById('modalDeleteForm');
+
+        if (deleteForm) {
+            if (status === 'DONE') {
+                deleteForm.classList.add('d-none');
+            } else {
+                deleteForm.classList.remove('d-none');
+            }
         }
 
         taskModal.show();
