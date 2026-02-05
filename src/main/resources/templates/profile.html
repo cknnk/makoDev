@@ -19,8 +19,8 @@
         <a class="navbar-brand fw-bold" href="/">MakoDev</a>
         <div class="d-flex align-items-center gap-3">
             <div class="text-end text-light lh-1">
-                <div class="fw-bold" th:text="${currentUser.username}">User</div>
-                <small class="text-muted">Level <span th:text="${currentUser.level}"></span></small>
+                <div class="fw-bold" th:text="${currentUser.fullName}">User</div>
+                <small class="text-muted" style="font-size: 0.7rem;">Level <span th:text="${currentUser.level}"></span></small>
             </div>
             <a href="/profile" class="text-decoration-none">
                 <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
@@ -92,7 +92,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 class="fw-bold mb-0">Activity Log</h5>
 
-                <button th:if="${completedTasks.size() > 3}"
+                <button th:if="${activityLog.size() > 5}"
                         id="toggleActivityBtn"
                         class="btn btn-sm btn-outline-secondary py-0"
                         onclick="toggleActivityLog()">
@@ -103,29 +103,62 @@
             <div class="card shadow-sm border-0">
                 <div class="list-group list-group-flush">
 
-                    <div th:if="${#lists.isEmpty(completedTasks)}" class="p-4 text-center text-muted">
+                    <div th:if="${#lists.isEmpty(activityLog)}" class="p-4 text-center text-muted">
                         <i class="bi bi-clipboard-x fs-1 d-block mb-2"></i>
                         No activity yet.
                     </div>
 
-                    <div th:each="task, iterStat : ${completedTasks}"
-                         class="list-group-item p-3"
-                         th:classappend="${iterStat.count > 3} ? 'extra-log d-none'">
+                    <div th:each="task, iterStat : ${activityLog}"
+                         class="list-group-item p-3 transition-hover"
+                         th:classappend="${iterStat.count > 5} ? 'extra-log d-none'"
+                         style="cursor: pointer;"
+
+                         th:data-id="${task.id}"
+                         th:data-priority="${task.priority}"
+                         th:data-title="${task.title}"
+                         th:data-desc="${task.description}"
+                         th:data-xp="${task.rewardXp}"
+                         th:data-status="${task.status}"
+                         th:data-git="${task.gitLink}"
+
+                         th:data-assignee="${task.assignee != null ? task.assignee.fullName : 'Unassigned'}"
+                         th:data-assignee-avatar="${task.assignee != null ? task.assignee.initials : '?'}"
+                         th:data-assignee-id="${task.assignee != null ? task.assignee.id : ''}"
+
+                         th:data-reviewer="${task.reviewer != null ? task.reviewer.fullName : ''}"
+                         th:data-reviewer-id="${task.reviewer != null ? task.reviewer.id : ''}"
+
+                         th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
+
+                         onclick="openTaskModal(this)">
 
                         <div class="d-flex justify-content-between align-items-center">
-                            <div style="min-width: 0;"> <h6 class="fw-bold mb-1 text-truncate">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                <span th:text="${task.title}">Task</span>
-                            </h6>
+                            <div style="min-width: 0;">
+                                <h6 class="fw-bold mb-1 text-truncate">
+                                    <i th:if="${task.assignee != null && task.assignee.id == user.id}"
+                                       class="bi bi-check-circle-fill text-success me-2" title="Completed"></i>
+                                    <i th:if="${task.reviewer != null && task.reviewer.id == user.id}"
+                                       class="bi bi-eye-fill text-info me-2" title="Reviewed"></i>
+                                    <span th:text="${task.title}">Task</span>
+                                </h6>
                                 <small class="text-muted d-block text-truncate">
-                                    in <strong th:text="${task.project.name}">Prj</strong>
-                                    • <span class="text-success fw-bold" th:text="${task.rewardXp} + ' XP'">50 XP</span>
+                                    in <strong th:text="${task.project.name}">Prj</strong> •
+                                    <span th:if="${task.assignee != null && task.assignee.id == user.id}" class="text-success fw-bold">Completed (+<span th:text="${task.rewardXp}"></span> XP)</span>
+                                    <span th:if="${task.reviewer != null && task.reviewer.id == user.id}" class="text-info fw-bold">Reviewed (+15 XP)</span>
                                 </small>
                             </div>
-
-                            <span th:if="${task.kudosCount > 0}" class="badge bg-danger bg-opacity-10 text-danger rounded-pill border border-danger border-opacity-25 ms-2">
+                            <span th:if="${task.assignee != null && task.assignee.id == user.id && task.kudosCount > 0}"
+                                  class="badge bg-danger bg-opacity-10 text-danger rounded-pill border border-danger border-opacity-25 ms-2">
                                 <i class="bi bi-heart-fill me-1"></i> <span th:text="${task.kudosCount}">2</span>
                             </span>
+                        </div>
+
+                        <div class="d-none task-comments-data">
+                            <div th:each="comment : ${task.comments}" class="comment-item"
+                                 th:data-author="${comment.author.fullName}"
+                                 th:data-avatar="${comment.author.initials}"
+                                 th:data-date="${comment.formattedDate}"
+                                 th:text="${comment.text}"> </div>
                         </div>
                     </div>
 
@@ -135,22 +168,26 @@
         </div>
 
         <div class="col-md-8">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card stat-card shadow-sm border-0">
-                        <div class="card-body p-4 d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3"><i class="bi bi-check-circle-fill text-primary fs-3"></i></div>
-                            <div>
-                                <h3 class="fw-bold mb-0" th:text="${tasksDone}">0</h3>
-                                <small class="text-muted">Tasks Completed</small>
-                            </div>
+            <div class="row g-3"> <div class="col-md-6">
+                <div class="card stat-card shadow-sm border-0 h-100">
+                    <div class="card-body p-4 d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="bi bi-check-circle-fill text-primary fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0" th:text="${tasksDone}">0</h3>
+                            <small class="text-muted">Tasks Completed</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card stat-card shadow-sm border-0">
+            </div>
+
+                <div class="col-md-6">
+                    <div class="card stat-card shadow-sm border-0 h-100">
                         <div class="card-body p-4 d-flex align-items-center">
-                            <div class="bg-danger bg-opacity-10 p-3 rounded-circle me-3"><i class="bi bi-heart-fill text-danger fs-3"></i></div>
+                            <div class="bg-danger bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-heart-fill text-danger fs-3"></i>
+                            </div>
                             <div>
                                 <h3 class="fw-bold mb-0" th:text="${totalKudos}">0</h3>
                                 <small class="text-muted">Kudos Received</small>
@@ -158,28 +195,35 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card stat-card shadow-sm border-0 opacity-75">
-                        <div class="card-body p-4 d-flex align-items-center">
-                            <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3"><i class="bi bi-coin text-warning fs-3"></i></div>
-                            <div>
-                                <h3 class="fw-bold mb-0" th:text="${user.coins}">0</h3>
-                                <small class="text-muted">Gold Coins</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-4">
+
+                <div class="col-md-12">
                     <div class="card stat-card shadow-sm border-0">
-                        <div class="card-body p-4 d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3"><i class="bi bi-calendar-check text-success fs-3"></i></div>
+                        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+
+                            <div class="p-3 rounded-circle me-3"
+                                 th:classappend="${isUserOnline} ? 'bg-success bg-opacity-10' : 'bg-secondary bg-opacity-10'">
+
+                                <i class="bi fs-3"
+                                   th:classappend="${isUserOnline} ? 'bi-activity text-success' : 'bi-clock-history text-secondary'"></i>
+                            </div>
+
                             <div>
-                                <h6 class="fw-bold mb-0">Active Today</h6>
-                                <small class="text-muted text-success">Online</small>
+                                <h6 class="fw-bold mb-0"
+                                    th:text="${isUserOnline ? 'System Online' : 'System Offline'}">
+                                    Status
+                                </h6>
+
+                                <small th:classappend="${isUserOnline} ? 'text-success' : 'text-muted'">
+
+                                    <span th:if="${isUserOnline}" class="spinner-grow spinner-grow-sm me-1" role="status"></span>
+
+                                    <span th:text="${lastActiveText}">Last seen date</span>
+                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <h4 class="fw-bold mt-4 mb-3">Participating Projects</h4>
@@ -299,6 +343,106 @@
     </div>
 </div>
 
+<div class="modal fade" id="universalTaskModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
+        <div class="modal-header border-bottom-0 pb-0">
+            <div class="d-flex align-items-center gap-2">
+                <span id="modalBadge" class="badge bg-secondary">STATUS</span>
+
+                <span id="modalPriority" class="badge border">PRIORITY</span>
+
+                <small class="text-muted fw-bold ms-2">TASK DETAILS</small>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+            <div class="container-fluid px-0">
+                <div class="row">
+                    <div class="col-md-8 border-end">
+                        <h3 class="fw-bold mb-3" id="modalTitle">Task Title</h3>
+
+                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Description</h6>
+                        <div id="modalDesc" class="text-secondary" style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.6;">
+                            Loading...
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Reward</h6>
+                            <span id="modalXp" class="badge bg-warning text-dark border border-warning fs-6">50 XP</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2" id="modalPeopleLabel">Assignee</h6>
+
+                            <a id="modalAssigneeLink" href="#" class="text-decoration-none text-dark">
+                                <div class="d-flex align-items-center bg-light rounded px-2 py-2 border transition-hover">
+                                    <div class="avatar-circle me-2 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                         style="width: 24px; height: 24px; font-size: 0.7rem;"
+                                         id="modalAvatar">MK</div>
+                                    <span class="small fw-bold" id="modalAssignee">User Name</span>
+
+                                    <i class="bi bi-box-arrow-up-right ms-auto text-muted small"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div id="modalReviewerBlock" class="mb-4 d-none">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Reviewed By</h6>
+
+                            <a id="modalReviewerLink" href="#" class="text-decoration-none text-dark">
+                                <div class="d-flex align-items-center bg-success bg-opacity-10 border border-success border-opacity-25 rounded px-2 py-2 transition-hover">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span class="small fw-bold" id="modalReviewer">Reviewer Name</span>
+
+                                    <i class="bi bi-box-arrow-up-right ms-auto text-success small opacity-50"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div id="modalGitBlock" class="mb-4 d-none">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Repository</h6>
+                            <a id="modalGitLink" href="#" target="_blank" class="btn btn-outline-dark btn-sm w-100 text-truncate">
+                                <i class="bi bi-github me-2"></i>Open Code
+                            </a>
+                        </div>
+
+                        <div id="modalCompletedBlock" class="mb-4 d-none">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Completed</h6>
+                            <div class="text-success small fw-bold">
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                <span id="modalCompletedDate">Date</span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3">
+                            <i class="bi bi-chat-left-text me-1"></i> Comments
+                        </h6>
+
+                        <div id="modalCommentsList" class="mb-3" style="max-height: 250px; overflow-y: auto;">
+                        </div>
+
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">Comments are read-only in profile view.</small>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer bg-light border-top-0 py-2">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -315,6 +459,148 @@
                 btn.innerText = "Show All";
             }
         });
+    }
+
+    // logic of opening new window
+    const taskModal = new bootstrap.Modal(document.getElementById('universalTaskModal'));
+
+    function openTaskModal(element) {
+        // data
+        const priority = element.getAttribute('data-priority');
+        const title = element.getAttribute('data-title');
+        const desc = element.getAttribute('data-desc');
+        const xp = element.getAttribute('data-xp');
+        const status = element.getAttribute('data-status');
+
+        const git = element.getAttribute('data-git');
+        const assignee = element.getAttribute('data-assignee');
+        const avatar = element.getAttribute('data-assignee-avatar');
+        const assigneeId = element.getAttribute('data-assignee-id');
+        const completed = element.getAttribute('data-completed');
+
+        const reviewer = element.getAttribute('data-reviewer');
+        const reviewerId = element.getAttribute('data-reviewer-id');
+
+        // filling modal
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalDesc').innerText = desc ? desc : "No description provided.";
+        document.getElementById('modalXp').innerText = xp + ' XP';
+        document.getElementById('modalBadge').innerText = status;
+        document.getElementById('modalAssignee').innerText = assignee;
+        document.getElementById('modalAvatar').innerText = avatar;
+
+        // --- УДАЛЕНО: document.getElementById('modalCommentTaskId').value = id; ---
+        // (Больше не нужно, так как формы нет)
+
+        // assignee profile link logic
+        const profileLink = document.getElementById('modalAssigneeLink');
+        if (assigneeId && assigneeId !== '') {
+            profileLink.href = '/profile/' + assigneeId;
+            profileLink.style.pointerEvents = 'auto';
+            profileLink.classList.remove('opacity-50');
+        } else {
+            profileLink.href = '#';
+            profileLink.style.pointerEvents = 'none';
+            profileLink.classList.add('opacity-50');
+        }
+
+        const label = document.getElementById('modalPeopleLabel');
+        if (status === 'TODO') {
+            label.innerText = 'Creator';
+        } else {
+            label.innerText = 'Assignee';
+        }
+
+        // git
+        const gitBlock = document.getElementById('modalGitBlock');
+        if (git && git.trim() !== "") {
+            gitBlock.classList.remove('d-none');
+            document.getElementById('modalGitLink').href = git;
+        } else {
+            gitBlock.classList.add('d-none');
+        }
+
+        // completed
+        const completedBlock = document.getElementById('modalCompletedBlock');
+        if (completed && completed.trim() !== "") {
+            completedBlock.classList.remove('d-none');
+            document.getElementById('modalCompletedDate').innerText = completed;
+        } else {
+            completedBlock.classList.add('d-none');
+        }
+
+        // comments logic
+        const commentsList = document.getElementById('modalCommentsList');
+        commentsList.innerHTML = ''; // clearing
+
+        // finding hidden items
+        const hiddenComments = element.querySelectorAll('.comment-item');
+
+        if (hiddenComments.length === 0) {
+            commentsList.innerHTML = '<small class="text-muted d-block text-center py-2">No comments yet.</small>';
+        } else {
+            hiddenComments.forEach(comment => {
+                const author = comment.getAttribute('data-author');
+                const userAvatar = comment.getAttribute('data-avatar');
+                const date = comment.getAttribute('data-date');
+                const text = comment.innerText;
+
+                // html for comment
+                const commentHtml = `
+                    <div class="d-flex align-items-start mb-2">
+                        <div class="avatar-circle me-2 mt-1 bg-light text-secondary border rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 24px; height: 24px; font-size: 0.6rem; flex-shrink: 0;">
+                            ${userAvatar}
+                        </div>
+                        <div class="bg-light rounded p-2 w-100">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold small text-dark">${author}</span>
+                                <small class="text-muted" style="font-size: 0.6rem;">${date}</small>
+                            </div>
+                            <p class="mb-0 small text-secondary" style="line-height: 1.3;">${text}</p>
+                        </div>
+                    </div>
+                `;
+                commentsList.innerHTML += commentHtml;
+            });
+        }
+
+        // priority
+        const priorityBadge = document.getElementById('modalPriority');
+        priorityBadge.innerText = priority;
+        priorityBadge.className = 'badge border me-1';
+
+        if (priority === 'HIGH') {
+            priorityBadge.classList.add('bg-danger', 'bg-opacity-10', 'text-danger', 'border-danger');
+            priorityBadge.innerHTML = '<i class="bi bi-fire me-1"></i> High';
+        } else if (priority === 'MEDIUM') {
+            priorityBadge.classList.add('bg-warning', 'bg-opacity-10', 'text-warning', 'border-warning');
+            priorityBadge.innerHTML = '<i class="bi bi-list me-1"></i> Medium';
+        } else {
+            priorityBadge.classList.add('bg-success', 'bg-opacity-10', 'text-success', 'border-success');
+            priorityBadge.innerHTML = '<i class="bi bi-arrow-down me-1"></i> Low';
+        }
+
+        // reviewer logic
+        const reviewerBlock = document.getElementById('modalReviewerBlock');
+        const reviewerLink = document.getElementById('modalReviewerLink');
+
+        if (reviewer && reviewer.trim() !== "") {
+            reviewerBlock.classList.remove('d-none');
+            document.getElementById('modalReviewer').innerText = reviewer;
+
+            if (reviewerId) {
+                reviewerLink.href = '/profile/' + reviewerId;
+                reviewerLink.style.pointerEvents = 'auto';
+            } else {
+                reviewerLink.href = '#';
+                reviewerLink.style.pointerEvents = 'none';
+            }
+        } else {
+            reviewerBlock.classList.add('d-none');
+        }
+
+        taskModal.show();
     }
 </script>
 </body>

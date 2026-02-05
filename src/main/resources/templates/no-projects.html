@@ -16,8 +16,8 @@
 
         <div class="d-flex align-items-center gap-3">
             <div class="text-end text-light lh-1">
-                <div class="fw-bold" th:text="${user.username}">User</div>
-                <small class="text-muted" style="font-size: 0.7rem;">Level <span th:text="${user.level}">1</span></small>
+                <div class="fw-bold" th:text="${user.fullName}">User</div>
+                <small class="text-muted" style="font-size: 0.7rem;">Level <span th:text="${user.level}"></span></small>
             </div>
 
             <a href="/profile" class="text-decoration-none">

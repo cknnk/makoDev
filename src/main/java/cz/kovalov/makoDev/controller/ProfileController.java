@@ -69,13 +69,38 @@ public class ProfileController {
         //whose profile is it
         boolean isOwner = targetUser.getId().equals(currentUser.getId());
 
-        List<Task> allDoneTasks = taskRepository.findByAssigneeAndStatusOrderByIdDesc(targetUser, "DONE");
-        List<Task> displayTasks;
+        List<Task> completedTasks = taskRepository.findByAssigneeAndStatusOrderByIdDesc(targetUser, "DONE");
+        List<Task> reviewedTasks = taskRepository.findByReviewerAndStatusOrderByIdDesc(targetUser, "DONE");
+        List<Task> fullActivityLog = new java.util.ArrayList<>(completedTasks);
+        fullActivityLog.addAll(reviewedTasks);
+        fullActivityLog.sort(java.util.Comparator.comparing(Task::getCompletedAt,
+                java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
 
+        List<Task> displayActivity;
         if (isOwner) {
-            displayTasks = allDoneTasks;
+            displayActivity = fullActivityLog;
         } else {
-            displayTasks = allDoneTasks.stream().limit(3).toList();
+            displayActivity = fullActivityLog.stream().limit(5).toList();
+        }
+
+        boolean isUserOnline = false;
+        String lastActiveText = "No activity yet";
+
+        // online/ofline
+        if (!fullActivityLog.isEmpty()) {
+            Task lastTask = fullActivityLog.get(0);
+            if (lastTask.getCompletedAt() != null) {
+                java.time.LocalDate lastDate = lastTask.getCompletedAt().toLocalDate();
+                java.time.LocalDate today = java.time.LocalDate.now();
+
+                if (lastDate.equals(today)) {
+                    isUserOnline = true;
+                    lastActiveText = "Active Today";
+                } else {
+                    java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd MMM");
+                    lastActiveText = "Last seen: " + lastTask.getCompletedAt().format(formatter);
+                }
+            }
         }
 
         model.addAttribute("user", targetUser);
@@ -86,7 +111,10 @@ public class ProfileController {
         model.addAttribute("totalKudos", totalKudos);
         model.addAttribute("currentProgress", currentProgress);
 
-        model.addAttribute("completedTasks", displayTasks);
+        model.addAttribute("activityLog", displayActivity);
+
+        model.addAttribute("isUserOnline", isUserOnline);
+        model.addAttribute("lastActiveText", lastActiveText);
 
         return "profile";
     }

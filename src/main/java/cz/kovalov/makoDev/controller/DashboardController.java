@@ -78,7 +78,7 @@ public class DashboardController {
         model.addAttribute("reviewTasks", projectTasks.stream().filter(t -> "CODE_REVIEW".equals(t.getStatus())).toList());
         model.addAttribute("doneTasks", projectTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
-                .sorted(Comparator.comparing(Task::getId).reversed())
+                .sorted(Comparator.comparing(Task::getCompletedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .toList());
 
 

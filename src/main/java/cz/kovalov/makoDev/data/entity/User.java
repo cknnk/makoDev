@@ -19,10 +19,9 @@ public class User {
     private String username;
     private String password;
 
-    // gamef
+    // gamification
     private int xp = 0;
     private int level = 1;
-    private int coins = 0; //maybe for the shop
 
     // New: Anti-Burnout
     private int dailyXpEarned = 0;

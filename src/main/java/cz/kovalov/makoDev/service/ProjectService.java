@@ -63,10 +63,11 @@ public class ProjectService {
                 .mapToInt(Task::getRewardXp)
                 .sum();
 
-        long doneTasksCount = projectTasks.stream()
+        int reviewXp = projectTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
-                .count();
-        int reviewXp = (int) (doneTasksCount * REVIEW_REWARD);
+                .filter(t -> t.getReviewer() != null)
+                .mapToInt(t -> REVIEW_REWARD)
+                .sum();
 
         // kudos
         int kudosXp = projectTasks.stream()

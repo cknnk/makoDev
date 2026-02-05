@@ -19,4 +19,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByProject(Project project);
 
     List<Task> findByAssigneeAndStatusOrderByIdDesc(User assignee, String status);
+
+    List<Task> findByReviewerAndStatusOrderByIdDesc(User reviewer, String status);
 }

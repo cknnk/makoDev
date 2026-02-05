@@ -42,7 +42,6 @@ public class AuthController {
         newUser.setPassword(passwordEncoder.encode(password));
         newUser.setXp(0);
         newUser.setLevel(1);
-        newUser.setCoins(0);
         newUser.setDailyXpEarned(0);
         newUser.setLastActiveDate(LocalDate.now());
 

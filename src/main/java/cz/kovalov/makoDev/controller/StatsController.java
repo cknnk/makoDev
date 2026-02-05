@@ -44,15 +44,28 @@ public class StatsController {
         int projectLevel = 1 + (teamTotalXp / 1000);
         int progressToNextLevel = teamTotalXp % 1000;
 
-        // my own xp
-        int myXpInThisProject = allTasks.stream()
+        int myTaskRewardXp = allTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
                 .filter(t -> t.getAssignee() != null && t.getAssignee().getId().equals(currentUser.getId()))
                 .mapToInt(Task::getRewardXp)
                 .sum();
 
-        // my xp %
-        double myContributionPercent = (teamTotalXp == 0) ? 0 : ((double) myXpInThisProject / teamTotalXp) * 100;
+        int myKudosXp = allTasks.stream()
+                .filter(t -> t.getAssignee() != null && t.getAssignee().getId().equals(currentUser.getId()))
+                .mapToInt(t -> t.getKudosCount() * 5)
+                .sum();
+
+        int myReviewXp = allTasks.stream()
+                .filter(t -> "DONE".equals(t.getStatus())).anyMatch(t -> t.getReviewer() != null && t.getReviewer().getId().equals(currentUser.getId())) ?
+                (int) allTasks.stream()
+                        .filter(t -> "DONE".equals(t.getStatus()))
+                        .filter(t -> t.getReviewer() != null && t.getReviewer().getId().equals(currentUser.getId()))
+                        .count() * 15
+                : 0;
+
+        int myTotalContribution = myTaskRewardXp + myKudosXp + myReviewXp;
+
+        double myContributionPercent = (teamTotalXp == 0) ? 0 : ((double) myTotalContribution / teamTotalXp) * 100;
 
         // my tasks count
         long myTasksCount = allTasks.stream()
@@ -63,7 +76,7 @@ public class StatsController {
         // last finished tasks (activity log)
         List<Task> recentlyDone = allTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
-                .sorted(Comparator.comparing(Task::getId).reversed())
+                .sorted(Comparator.comparing(Task::getCompletedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .limit(5)
                 .toList();
 
