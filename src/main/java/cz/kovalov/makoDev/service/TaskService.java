@@ -110,6 +110,7 @@ public class TaskService {
 
         task.setStatus("DONE");
         task.setCompletedAt(java.time.LocalDateTime.now());
+        task.setReviewer(reviewer);
 
         taskRepository.save(task);
     }

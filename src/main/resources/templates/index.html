@@ -519,6 +519,8 @@
                                                 th:data-assignee-avatar="${task.assignee != null ? task.assignee.initials : '?'}"
                                                 th:data-assignee-id="${task.assignee != null ? task.assignee.id : ''}"
                                                 th:data-completed="${task.completedAt != null ? #temporals.format(task.completedAt, 'dd MMM HH:mm') : ''}"
+                                                th:data-reviewer="${task.reviewer != null ? task.reviewer.fullName : ''}"
+                                                th:data-reviewer-id="${task.reviewer != null ? task.reviewer.id : ''}"
 
                                                 onclick="openTaskModal(this)">
                                             <i class="bi bi-eye"></i>
@@ -662,6 +664,19 @@
                                     <span class="small fw-bold" id="modalAssignee">User Name</span>
 
                                     <i class="bi bi-box-arrow-up-right ms-auto text-muted small"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div id="modalReviewerBlock" class="mb-4 d-none">
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Reviewed By</h6>
+
+                            <a id="modalReviewerLink" href="#" class="text-decoration-none text-dark">
+                                <div class="d-flex align-items-center bg-success bg-opacity-10 border border-success border-opacity-25 rounded px-2 py-2 transition-hover">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span class="small fw-bold" id="modalReviewer">Reviewer Name</span>
+
+                                    <i class="bi bi-box-arrow-up-right ms-auto text-success small opacity-50"></i>
                                 </div>
                             </a>
                         </div>
@@ -939,6 +954,8 @@
         const avatar = element.getAttribute('data-assignee-avatar');
         const assigneeId = element.getAttribute('data-assignee-id');
         const completed = element.getAttribute('data-completed');
+        const reviewer = element.getAttribute('data-reviewer');
+        const reviewerId = element.getAttribute('data-reviewer-id');
 
         // filling modal
         document.getElementById('modalTitle').innerText = title;
@@ -1045,6 +1062,24 @@
         } else {
             priorityBadge.classList.add('bg-success', 'bg-opacity-10', 'text-success', 'border-success');
             priorityBadge.innerHTML = '<i class="bi bi-arrow-down me-1"></i> Low';
+        }
+
+        // reviewer logic
+        const reviewerBlock = document.getElementById('modalReviewerBlock');
+        const reviewerLink = document.getElementById('modalReviewerLink');
+        if (reviewer && reviewer.trim() !== "") {
+            reviewerBlock.classList.remove('d-none');
+            document.getElementById('modalReviewer').innerText = reviewer;
+
+            if (reviewerId) {
+                reviewerLink.href = '/profile/' + reviewerId;
+                reviewerLink.style.pointerEvents = 'auto';
+            } else {
+                reviewerLink.href = '#';
+                reviewerLink.style.pointerEvents = 'none';
+            }
+        } else {
+            reviewerBlock.classList.add('d-none');
         }
 
         taskModal.show();

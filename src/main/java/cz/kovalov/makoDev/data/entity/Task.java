@@ -41,6 +41,12 @@ public class Task {
     private User assignee;
 
     @ManyToOne
+    @JoinColumn(name = "reviewer_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User reviewer;
+
+    @ManyToOne
     @JoinColumn(name = "project_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
