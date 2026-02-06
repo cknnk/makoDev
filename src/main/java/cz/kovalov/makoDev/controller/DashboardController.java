@@ -3,9 +3,9 @@ package cz.kovalov.makoDev.controller;
 import cz.kovalov.makoDev.data.entity.Project;
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
-import cz.kovalov.makoDev.data.repository.UserRepository;
 import cz.kovalov.makoDev.service.ProjectService;
 import cz.kovalov.makoDev.service.TaskService;
+import cz.kovalov.makoDev.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,12 +21,12 @@ import java.util.List;
 @Controller
 public class DashboardController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final TaskService taskService;
     private final ProjectService projectService;
 
-    public DashboardController(UserRepository userRepository, TaskService taskService, ProjectService projectService) {
-        this.userRepository = userRepository;
+    public DashboardController(UserService userService, TaskService taskService, ProjectService projectService) {
+        this.userService = userService;
         this.taskService = taskService;
         this.projectService = projectService;
     }
@@ -34,15 +34,13 @@ public class DashboardController {
     @GetMapping("/")
     public String dashboard(Model model, Principal principal, HttpSession session) {
         String username = principal.getName();
-        User currentUser = userRepository.findByUsername(username);
+
+        User currentUser = userService.getDashboardUser(username);
 
         if (currentUser == null) {
             session.invalidate();
             return "redirect:/login";
         }
-
-        currentUser.checkAndResetDailyStats();
-        userRepository.save(currentUser);
 
         model.addAttribute("user", currentUser);
         model.addAttribute("dailyXp", currentUser.getDailyXpEarned());

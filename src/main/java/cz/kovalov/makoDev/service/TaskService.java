@@ -268,4 +268,20 @@ public class TaskService {
 
         return fullActivityLog;
     }
+
+    public List<Task> getRecentProjectActivity(Project project) {
+        return taskRepository.findByProject(project).stream()
+                .filter(t -> "DONE".equals(t.getStatus()))
+                .sorted(java.util.Comparator.comparing(Task::getCompletedAt,
+                        java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())))
+                .limit(5)
+                .toList();
+    }
+
+    public long countUserDoneTasks(List<Task> projectTasks, User user) {
+        return projectTasks.stream()
+                .filter(t -> "DONE".equals(t.getStatus()))
+                .filter(t -> t.getAssignee() != null && t.getAssignee().getId().equals(user.getId()))
+                .count();
+    }
 }

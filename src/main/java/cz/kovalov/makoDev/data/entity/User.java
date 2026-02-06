@@ -62,7 +62,7 @@ public class User {
         if (username != null && username.length() >= 2) {
             return username.substring(0, 2).toUpperCase();
         }
-        return "GG";
+        return "MK";
     }
 
     public String getFullName() {

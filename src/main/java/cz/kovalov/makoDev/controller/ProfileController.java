@@ -2,9 +2,8 @@ package cz.kovalov.makoDev.controller;
 
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
-import cz.kovalov.makoDev.data.repository.UserRepository;
 import cz.kovalov.makoDev.service.TaskService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import cz.kovalov.makoDev.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,20 +17,17 @@ import java.util.List;
 @Controller
 public class ProfileController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
     private final TaskService taskService;
 
-    public ProfileController(UserRepository userRepository, PasswordEncoder passwordEncoder, TaskService taskService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public ProfileController(UserService userService, TaskService taskService) {
+        this.userService = userService;
         this.taskService = taskService;
     }
 
     @GetMapping("/profile")
     public String myProfile(Model model, Principal principal) {
-        User currentUser = userRepository.findByUsername(principal.getName());
-        // redirect to universal method
+        User currentUser = userService.getDashboardUser(principal.getName());
         return viewUserProfile(currentUser.getId(), model, principal);
     }
 
@@ -42,25 +38,16 @@ public class ProfileController {
                                 @RequestParam String bio,
                                 Principal principal) {
 
-        User user = userRepository.findByUsername(principal.getName());
-
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setBio(bio);
-
-        userRepository.save(user);
-
+        userService.updateProfile(principal.getName(), firstName, lastName, email, bio);
         return "redirect:/profile";
     }
 
     @GetMapping("/profile/{id}")
     public String viewUserProfile(@PathVariable Long id, Model model, Principal principal) {
-        User targetUser = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User targetUser = userService.findById(id);
+        if (targetUser == null) throw new IllegalArgumentException("User not found");
 
-        String currentUsername = principal.getName();
-        User currentUser = userRepository.findByUsername(currentUsername);
+        User currentUser = userService.getDashboardUser(principal.getName());
 
         int tasksDone = taskService.countDoneTasks(targetUser);
         int totalKudos = taskService.countTotalKudos(targetUser);
@@ -111,19 +98,11 @@ public class ProfileController {
                                  @RequestParam String confirmPassword,
                                  Principal principal) {
 
-        User user = userRepository.findByUsername(principal.getName());
+        String error = userService.changePassword(principal.getName(), currentPassword, newPassword, confirmPassword);
 
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            return "redirect:/profile?passError=Current password is incorrect";
+        if (error != null) {
+            return "redirect:/profile?passError=" + error;
         }
-
-        if (!newPassword.equals(confirmPassword)) {
-            return "redirect:/profile?passError=New passwords do not match";
-        }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-
         return "redirect:/profile?passSuccess";
     }
 }

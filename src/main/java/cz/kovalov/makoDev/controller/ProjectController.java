@@ -1,9 +1,6 @@
 package cz.kovalov.makoDev.controller;
 
-import cz.kovalov.makoDev.data.entity.Project;
-import cz.kovalov.makoDev.data.entity.User;
-import cz.kovalov.makoDev.data.repository.ProjectRepository;
-import cz.kovalov.makoDev.data.repository.UserRepository;
+import cz.kovalov.makoDev.service.ProjectService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,31 +9,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 public class ProjectController {
 
-    private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
+    private final ProjectService projectService;
 
-    public ProjectController(ProjectRepository projectRepository, UserRepository userRepository) {
-        this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
     }
 
     @GetMapping("/project/switch/{id}")
     public String switchProject(@PathVariable Long id, HttpSession session, Principal principal) {
-        User user = userRepository.findByUsername(principal.getName());
-        Project project = projectRepository.findById(id).orElseThrow();
-
-        if (project.getMembers().contains(user)) {
-            session.setAttribute("activeProjectId", id);
-
-            user.setCurrentProject(project);
-            userRepository.save(user);
-        }
-
+        projectService.switchProject(id, principal.getName(), session);
         return "redirect:/";
     }
 
@@ -45,20 +30,7 @@ public class ProjectController {
                                 @RequestParam String description,
                                 Principal principal,
                                 HttpSession session) {
-
-        User currentUser = userRepository.findByUsername(principal.getName());
-
-        Project newProject = new Project();
-        newProject.setName(name);
-        newProject.setDescription(description);
-        newProject.setOwner(currentUser);
-        newProject.setMembers(List.of(currentUser));
-
-        Project savedProject = projectRepository.save(newProject);
-
-        //switch user to new project rn
-        session.setAttribute("activeProjectId", savedProject.getId());
-
+        projectService.createProject(name, description, principal.getName(), session);
         return "redirect:/";
     }
 
@@ -67,25 +39,11 @@ public class ProjectController {
                             @RequestParam String username,
                             Principal principal) {
 
-        User currentUser = userRepository.findByUsername(principal.getName());
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        String error = projectService.addMember(projectId, username, principal.getName());
 
-        if (!project.getOwner().equals(currentUser)) {
-            return "redirect:/?error=Only owner can add members";
+        if (error != null) {
+            return "redirect:/?error=" + error;
         }
-
-        User newMember = userRepository.findByUsername(username);
-        if (newMember == null) {
-            return "redirect:/?error=User not found";
-        }
-
-        if (project.getMembers().contains(newMember)) {
-            return "redirect:/?error=User already in project";
-        }
-
-        project.getMembers().add(newMember);
-        projectRepository.save(project);
-
         return "redirect:/?success=Member added";
     }
 
@@ -94,20 +52,11 @@ public class ProjectController {
                                @RequestParam Long memberId,
                                Principal principal) {
 
-        User currentUser = userRepository.findByUsername(principal.getName());
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        String error = projectService.removeMember(projectId, memberId, principal.getName());
 
-        if (!project.getOwner().equals(currentUser)) {
-            return "redirect:/?error=Access denied";
+        if (error != null) {
+            return "redirect:/?error=" + error;
         }
-
-        if (memberId.equals(project.getOwner().getId())) {
-            return "redirect:/?error=Cannot remove owner";
-        }
-
-        project.getMembers().removeIf(user -> user.getId().equals(memberId));
-        projectRepository.save(project);
-
         return "redirect:/?success=Member removed";
     }
 
@@ -116,16 +65,11 @@ public class ProjectController {
                                     @RequestParam String description,
                                     Principal principal) {
 
-        User currentUser = userRepository.findByUsername(principal.getName());
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        String error = projectService.updateProjectInfo(projectId, description, principal.getName());
 
-        if (!project.getOwner().equals(currentUser)) {
-            return "redirect:/?error=Only owner can edit project info";
+        if (error != null) {
+            return "redirect:/?error=" + error;
         }
-
-        project.setDescription(description);
-        projectRepository.save(project);
-
         return "redirect:/?success=Project info updated";
     }
 
@@ -134,30 +78,11 @@ public class ProjectController {
                                 Principal principal,
                                 HttpSession session) {
 
-        User currentUser = userRepository.findByUsername(principal.getName());
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        String error = projectService.deleteProject(projectId, principal.getName(), session);
 
-        if (!project.getOwner().equals(currentUser)) {
-            return "redirect:/?error=Only owner can delete project";
+        if (error != null) {
+            return "redirect:/?error=" + error;
         }
-
-        for (User member : project.getMembers()) {
-            if (member.getCurrentProject() != null && member.getCurrentProject().getId().equals(projectId)) {
-                member.setCurrentProject(null);
-                userRepository.save(member);
-            }
-        }
-
-        Long sessionProjectId = (Long) session.getAttribute("activeProjectId");
-        if (sessionProjectId != null && sessionProjectId.equals(projectId)) {
-            session.removeAttribute("activeProjectId");
-        }
-
-        project.getMembers().clear();
-        projectRepository.save(project);
-
-        projectRepository.delete(project);
-
         return "redirect:/?success=Project deleted";
     }
 }
