@@ -71,7 +71,16 @@ public class DashboardController {
 
         List<Task> projectTasks = taskRepository.findByProject(activeProject);
 
-        model.addAttribute("todoTasks", projectTasks.stream().filter(t -> "TODO".equals(t.getStatus())).toList());
+        model.addAttribute("todoTasks", projectTasks.stream()
+                .filter(t -> "TODO".equals(t.getStatus()))
+                .sorted(Comparator.comparingInt(t -> {
+                    String p = t.getPriority();
+                    if ("HIGH".equals(p)) return 1;
+                    if ("MEDIUM".equals(p)) return 2;
+                    if ("LOW".equals(p)) return 3;
+                    return 4;
+                }))
+                .toList());
         model.addAttribute("progressTasks", projectTasks.stream()
                 .filter(t -> "IN_PROGRESS".equals(t.getStatus()) || "CHANGES_REQUESTED".equals(t.getStatus()))
                 .toList());

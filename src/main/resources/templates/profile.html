@@ -5,11 +5,38 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .profile-header { background: linear-gradient(135deg, #0d6efd, #0dcaf0); color: white; padding: 3rem 0; margin-bottom: 2rem; }
-        .avatar-large { width: 100px; height: 100px; background-color: white; color: #0d6efd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; border: 4px solid rgba(255,255,255,0.5); }
-        .stat-card { transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-5px); }
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-large {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            color: #0d6efd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            border: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-card {
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
     </style>
 </head>
 <body>
@@ -25,7 +52,8 @@
             <a href="/profile" class="text-decoration-none">
                 <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
                      style="width: 40px; height: 40px;"
-                     th:text="${currentUser.initials}">MK</div>
+                     th:text="${currentUser.initials}">MK
+                </div>
             </a>
             <a href="/logout" class="btn btn-outline-danger btn-sm ms-2"><i class="bi bi-box-arrow-right"></i></a>
         </div>
@@ -45,11 +73,13 @@
 
 <div class="profile-header text-center position-relative">
     <div class="position-absolute top-0 end-0 m-4" th:if="${isOwner}">
-        <button class="btn btn-outline-light btn-sm bg-white bg-opacity-25 border-0 text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+        <button class="btn btn-outline-light btn-sm bg-white bg-opacity-25 border-0 text-white shadow-sm"
+                data-bs-toggle="modal" data-bs-target="#changePasswordModal">
             <i class="bi bi-key-fill"></i> Password
         </button>
 
-        <button class="btn btn-light btn-sm text-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+        <button class="btn btn-light btn-sm text-primary fw-bold shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#editProfileModal">
             <i class="bi bi-pencil-fill"></i> Edit Profile
         </button>
     </div>
@@ -59,7 +89,8 @@
 
         <h2 class="fw-bold" th:text="${user.fullName}">Username</h2>
 
-        <p class="opacity-75" style="max-width: 600px;" th:text="${user.bio ?: 'No bio yet. Click Edit Profile to tell us about yourself!'}">
+        <p class="opacity-75" style="max-width: 600px;"
+           th:text="${user.bio ?: 'No bio yet. Click Edit Profile to tell us about yourself!'}">
             Software Developer • Team Member
         </p>
 
@@ -80,8 +111,10 @@
                     <hr class="my-4">
                     <h5 class="text-start small text-muted mb-2">XP Progress</h5>
                     <div class="progress" style="height: 25px; position: relative;">
-                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" th:style="'width: ' + ${currentProgress} + '%'"></div>
-                        <span class="position-absolute w-100 text-center text-dark fw-bold" style="top: 2px;" th:text="${currentProgress} + ' / 100 XP'"></span>
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                             role="progressbar" th:style="'width: ' + ${currentProgress} + '%'"></div>
+                        <span class="position-absolute w-100 text-center text-dark fw-bold" style="top: 2px;"
+                              th:text="${currentProgress} + ' / 100 XP'"></span>
                     </div>
                     <div class="mt-2 text-end">
                         <small class="text-muted">Total XP: <span th:text="${user.xp}"></span></small>
@@ -143,8 +176,11 @@
                                 </h6>
                                 <small class="text-muted d-block text-truncate">
                                     in <strong th:text="${task.project.name}">Prj</strong> •
-                                    <span th:if="${task.assignee != null && task.assignee.id == user.id}" class="text-success fw-bold">Completed (+<span th:text="${task.rewardXp}"></span> XP)</span>
-                                    <span th:if="${task.reviewer != null && task.reviewer.id == user.id}" class="text-info fw-bold">Reviewed (+15 XP)</span>
+                                    <span th:if="${task.assignee != null && task.assignee.id == user.id}"
+                                          class="text-success fw-bold">Completed (+<span
+                                            th:text="${task.rewardXp}"></span> XP)</span>
+                                    <span th:if="${task.reviewer != null && task.reviewer.id == user.id}"
+                                          class="text-info fw-bold">Reviewed (+15 XP)</span>
                                 </small>
                             </div>
                             <span th:if="${task.assignee != null && task.assignee.id == user.id && task.kudosCount > 0}"
@@ -158,7 +194,7 @@
                                  th:data-author="${comment.author.fullName}"
                                  th:data-avatar="${comment.author.initials}"
                                  th:data-date="${comment.formattedDate}"
-                                 th:text="${comment.text}"> </div>
+                                 th:text="${comment.text}"></div>
                         </div>
                     </div>
 
@@ -168,19 +204,20 @@
         </div>
 
         <div class="col-md-8">
-            <div class="row g-3"> <div class="col-md-6">
-                <div class="card stat-card shadow-sm border-0 h-100">
-                    <div class="card-body p-4 d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                            <i class="bi bi-check-circle-fill text-primary fs-3"></i>
-                        </div>
-                        <div>
-                            <h3 class="fw-bold mb-0" th:text="${tasksDone}">0</h3>
-                            <small class="text-muted">Tasks Completed</small>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card stat-card shadow-sm border-0 h-100">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-check-circle-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="fw-bold mb-0" th:text="${tasksDone}">0</h3>
+                                <small class="text-muted">Tasks Completed</small>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
                 <div class="col-md-6">
                     <div class="card stat-card shadow-sm border-0 h-100">
@@ -215,7 +252,8 @@
 
                                 <small th:classappend="${isUserOnline} ? 'text-success' : 'text-muted'">
 
-                                    <span th:if="${isUserOnline}" class="spinner-grow spinner-grow-sm me-1" role="status"></span>
+                                    <span th:if="${isUserOnline}" class="spinner-grow spinner-grow-sm me-1"
+                                          role="status"></span>
 
                                     <span th:text="${lastActiveText}">Last seen date</span>
                                 </small>
@@ -243,7 +281,11 @@
                                 </div>
                                 <div>
                                     <h6 class="fw-bold mb-1" th:text="${project.name}">Project Name</h6>
-                                    <p class="mb-0 small text-muted" th:text="${project.description}">No description</p>
+                                    <p class="mb-0 small text-muted"
+                                       style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                                       th:text="${project.description}">
+                                        No description
+                                    </p>
                                 </div>
                             </div>
                             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
@@ -322,7 +364,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="currentPassword" class="form-label">Current Password</label>
-                        <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                        <input type="password" id="currentPassword" name="currentPassword" class="form-control"
+                               required>
                     </div>
                     <hr>
                     <div class="mb-3">
@@ -331,7 +374,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+                               required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -344,102 +388,108 @@
 </div>
 
 <div class="modal fade" id="universalTaskModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered"> <div class="modal-content">
-        <div class="modal-header border-bottom-0 pb-0">
-            <div class="d-flex align-items-center gap-2">
-                <span id="modalBadge" class="badge bg-secondary">STATUS</span>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0 pb-0">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="modalBadge" class="badge bg-secondary">STATUS</span>
 
-                <span id="modalPriority" class="badge border">PRIORITY</span>
+                    <span id="modalPriority" class="badge border">PRIORITY</span>
 
-                <small class="text-muted fw-bold ms-2">TASK DETAILS</small>
+                    <small class="text-muted fw-bold ms-2">TASK DETAILS</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
 
-        <div class="modal-body">
-            <div class="container-fluid px-0">
-                <div class="row">
-                    <div class="col-md-8 border-end">
-                        <h3 class="fw-bold mb-3" id="modalTitle">Task Title</h3>
+            <div class="modal-body">
+                <div class="container-fluid px-0">
+                    <div class="row">
+                        <div class="col-md-8 border-end">
+                            <h3 class="fw-bold mb-3" id="modalTitle">Task Title</h3>
 
-                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Description</h6>
-                        <div id="modalDesc" class="text-secondary" style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.6;">
-                            Loading...
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-
-                        <div class="mb-4">
-                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Reward</h6>
-                            <span id="modalXp" class="badge bg-warning text-dark border border-warning fs-6">50 XP</span>
-                        </div>
-
-                        <div class="mb-4">
-                            <h6 class="text-uppercase text-muted small fw-bold mb-2" id="modalPeopleLabel">Assignee</h6>
-
-                            <a id="modalAssigneeLink" href="#" class="text-decoration-none text-dark">
-                                <div class="d-flex align-items-center bg-light rounded px-2 py-2 border transition-hover">
-                                    <div class="avatar-circle me-2 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                                         style="width: 24px; height: 24px; font-size: 0.7rem;"
-                                         id="modalAvatar">MK</div>
-                                    <span class="small fw-bold" id="modalAssignee">User Name</span>
-
-                                    <i class="bi bi-box-arrow-up-right ms-auto text-muted small"></i>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div id="modalReviewerBlock" class="mb-4 d-none">
-                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Reviewed By</h6>
-
-                            <a id="modalReviewerLink" href="#" class="text-decoration-none text-dark">
-                                <div class="d-flex align-items-center bg-success bg-opacity-10 border border-success border-opacity-25 rounded px-2 py-2 transition-hover">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    <span class="small fw-bold" id="modalReviewer">Reviewer Name</span>
-
-                                    <i class="bi bi-box-arrow-up-right ms-auto text-success small opacity-50"></i>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div id="modalGitBlock" class="mb-4 d-none">
-                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Repository</h6>
-                            <a id="modalGitLink" href="#" target="_blank" class="btn btn-outline-dark btn-sm w-100 text-truncate">
-                                <i class="bi bi-github me-2"></i>Open Code
-                            </a>
-                        </div>
-
-                        <div id="modalCompletedBlock" class="mb-4 d-none">
-                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Completed</h6>
-                            <div class="text-success small fw-bold">
-                                <i class="bi bi-check-circle-fill me-1"></i>
-                                <span id="modalCompletedDate">Date</span>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-2">Description</h6>
+                            <div id="modalDesc" class="text-secondary"
+                                 style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.6;">
+                                Loading...
                             </div>
                         </div>
 
-                        <hr class="my-4">
+                        <div class="col-md-4">
 
-                        <h6 class="text-uppercase text-muted small fw-bold mb-3">
-                            <i class="bi bi-chat-left-text me-1"></i> Comments
-                        </h6>
+                            <div class="mb-4">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-2">Reward</h6>
+                                <span id="modalXp"
+                                      class="badge bg-warning text-dark border border-warning fs-6">50 XP</span>
+                            </div>
 
-                        <div id="modalCommentsList" class="mb-3" style="max-height: 250px; overflow-y: auto;">
+                            <div class="mb-4">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-2" id="modalPeopleLabel">
+                                    Assignee</h6>
+
+                                <a id="modalAssigneeLink" href="#" class="text-decoration-none text-dark">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-2 border transition-hover">
+                                        <div class="avatar-circle me-2 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width: 24px; height: 24px; font-size: 0.7rem;"
+                                             id="modalAvatar">MK
+                                        </div>
+                                        <span class="small fw-bold" id="modalAssignee">User Name</span>
+
+                                        <i class="bi bi-box-arrow-up-right ms-auto text-muted small"></i>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div id="modalReviewerBlock" class="mb-4 d-none">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-2">Reviewed By</h6>
+
+                                <a id="modalReviewerLink" href="#" class="text-decoration-none text-dark">
+                                    <div class="d-flex align-items-center bg-success bg-opacity-10 border border-success border-opacity-25 rounded px-2 py-2 transition-hover">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <span class="small fw-bold" id="modalReviewer">Reviewer Name</span>
+
+                                        <i class="bi bi-box-arrow-up-right ms-auto text-success small opacity-50"></i>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div id="modalGitBlock" class="mb-4 d-none">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-2">Repository</h6>
+                                <a id="modalGitLink" href="#" target="_blank"
+                                   class="btn btn-outline-dark btn-sm w-100 text-truncate">
+                                    <i class="bi bi-github me-2"></i>Open Code
+                                </a>
+                            </div>
+
+                            <div id="modalCompletedBlock" class="mb-4 d-none">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-2">Completed</h6>
+                                <div class="text-success small fw-bold">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    <span id="modalCompletedDate">Date</span>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h6 class="text-uppercase text-muted small fw-bold mb-3">
+                                <i class="bi bi-chat-left-text me-1"></i> Comments
+                            </h6>
+
+                            <div id="modalCommentsList" class="mb-3" style="max-height: 250px; overflow-y: auto;">
+                            </div>
+
+                            <div class="mt-2 text-center">
+                                <small class="text-muted">Comments are read-only in profile view.</small>
+                            </div>
+
                         </div>
-
-                        <div class="mt-2 text-center">
-                            <small class="text-muted">Comments are read-only in profile view.</small>
-                        </div>
-
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="modal-footer bg-light border-top-0 py-2">
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer bg-light border-top-0 py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
-    </div>
     </div>
 </div>
 

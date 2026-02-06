@@ -5,7 +5,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f8f9fa; height: 100vh; display: flex; flex-direction: column; }
+        body {
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
@@ -39,7 +44,8 @@
     <div class="text-center p-5 bg-white shadow rounded-4" style="max-width: 500px;">
 
         <div class="mb-4">
-            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center"
+                 style="width: 80px; height: 80px;">
                 <i class="bi bi-folder-plus fs-1"></i>
             </div>
         </div>
@@ -51,7 +57,8 @@
             You can create your own workspace or wait for an invitation from your team lead.
         </p>
 
-        <button class="btn btn-primary btn-lg w-100 shadow-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+        <button class="btn btn-primary btn-lg w-100 shadow-sm" data-bs-toggle="modal"
+                data-bs-target="#createProjectModal">
             <i class="bi bi-rocket-takeoff-fill me-2"></i> Create First Project
         </button>
 
@@ -69,11 +76,13 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="projectName" class="form-label">Project Name</label>
-                        <input type="text" id="projectName" name="name" class="form-control" placeholder="e.g. Startup MVP" required>
+                        <input type="text" id="projectName" name="name" class="form-control"
+                               placeholder="e.g. Startup MVP" required>
                     </div>
                     <div class="mb-3">
                         <label for="projectDesc" class="form-label">Description</label>
-                        <textarea id="projectDesc" name="description" class="form-control" rows="2" placeholder="Short goal description..."></textarea>
+                        <textarea id="projectDesc" name="description" class="form-control" rows="2"
+                                  placeholder="Short goal description..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
