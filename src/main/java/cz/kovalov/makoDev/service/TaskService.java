@@ -1,12 +1,16 @@
 package cz.kovalov.makoDev.service;
 
 import cz.kovalov.makoDev.data.entity.Comment;
+import cz.kovalov.makoDev.data.entity.Project;
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
 import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class TaskService {
@@ -21,6 +25,33 @@ public class TaskService {
     public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public void createTask(String title, String description, int reward, String priority, String gitLink, Long projectId, String username) {
+        User currentUser = userRepository.findByUsername(username);
+
+        cz.kovalov.makoDev.data.entity.Project project = currentUser.getProjects().stream()
+                .filter(p -> p.getId().equals(projectId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Project not found or access denied"));
+
+        Task task = new Task();
+        task.setTitle(title);
+        task.setDescription(description);
+        task.setRewardXp(reward);
+        task.setGitLink(gitLink);
+        task.setStatus("TODO");
+        task.setAssignee(currentUser);
+        task.setProject(project);
+
+        if ("HIGH".equals(priority) || "LOW".equals(priority)) {
+            task.setPriority(priority);
+        } else {
+            task.setPriority("MEDIUM");
+        }
+
+        taskRepository.save(task);
     }
 
     @Transactional
@@ -43,7 +74,6 @@ public class TaskService {
             return;
         }
 
-        //if bug
         if (task.getAssignee() == null) {
             task.setAssignee(currentUser);
         }
@@ -105,8 +135,6 @@ public class TaskService {
         if (author != null) {
             addXpWithBurnoutProtection(author, task.getRewardXp());
         }
-
-        //maybe add a massage on lvl up?
 
         task.setStatus("DONE");
         task.setCompletedAt(java.time.LocalDateTime.now());
@@ -177,5 +205,67 @@ public class TaskService {
 
         task.getComments().add(comment);
         taskRepository.save(task);
+    }
+
+    @Transactional
+    public void deleteTask(Long taskId) {
+        taskRepository.deleteById(taskId);
+    }
+
+    public List<Task> getTodoTasks(Project project) {
+        return taskRepository.findByProject(project).stream()
+                .filter(t -> "TODO".equals(t.getStatus()))
+                .sorted(Comparator.comparingInt(t -> {
+                    String p = t.getPriority();
+                    if ("HIGH".equals(p)) return 1;
+                    if ("MEDIUM".equals(p)) return 2;
+                    if ("LOW".equals(p)) return 3;
+                    return 4;
+                }))
+                .toList();
+    }
+
+    public List<Task> getProgressTasks(Project project) {
+        return taskRepository.findByProject(project).stream()
+                .filter(t -> "IN_PROGRESS".equals(t.getStatus()) || "CHANGES_REQUESTED".equals(t.getStatus()))
+                .toList();
+    }
+
+    public List<Task> getReviewTasks(Project project) {
+        return taskRepository.findByProject(project).stream()
+                .filter(t -> "CODE_REVIEW".equals(t.getStatus()))
+                .toList();
+    }
+
+    public List<Task> getDoneTasks(Project project) {
+        return taskRepository.findByProject(project).stream()
+                .filter(t -> "DONE".equals(t.getStatus()))
+                .sorted(Comparator.comparing(Task::getCompletedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+    }
+
+    public List<Task> getAllProjectTasks(Project project) {
+        return taskRepository.findByProject(project);
+    }
+
+    public int countDoneTasks(User user) {
+        return taskRepository.countByAssigneeAndStatus(user, "DONE");
+    }
+
+    public int countTotalKudos(User user) {
+        return taskRepository.getTotalKudosForUser(user);
+    }
+
+    public List<Task> getActivityLog(User user) {
+        List<Task> completedTasks = taskRepository.findByAssigneeAndStatusOrderByIdDesc(user, "DONE");
+        List<Task> reviewedTasks = taskRepository.findByReviewerAndStatusOrderByIdDesc(user, "DONE");
+
+        List<Task> fullActivityLog = new java.util.ArrayList<>(completedTasks);
+        fullActivityLog.addAll(reviewedTasks);
+
+        fullActivityLog.sort(java.util.Comparator.comparing(Task::getCompletedAt,
+                java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
+
+        return fullActivityLog;
     }
 }

@@ -3,7 +3,6 @@ package cz.kovalov.makoDev.controller;
 import cz.kovalov.makoDev.data.entity.Project;
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
-import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
 import cz.kovalov.makoDev.service.ProjectService;
 import cz.kovalov.makoDev.service.TaskService;
@@ -16,20 +15,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
-import java.util.Comparator;
 
 import java.util.List;
 
 @Controller
 public class DashboardController {
 
-    private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskService taskService;
     private final ProjectService projectService;
 
-    public DashboardController(TaskRepository taskRepository, UserRepository userRepository, TaskService taskService, ProjectService projectService) {
-        this.taskRepository = taskRepository;
+    public DashboardController(UserRepository userRepository, TaskService taskService, ProjectService projectService) {
         this.userRepository = userRepository;
         this.taskService = taskService;
         this.projectService = projectService;
@@ -48,17 +44,14 @@ public class DashboardController {
         currentUser.checkAndResetDailyStats();
         userRepository.save(currentUser);
 
+        model.addAttribute("user", currentUser);
         model.addAttribute("dailyXp", currentUser.getDailyXpEarned());
         model.addAttribute("maxDailyXp", 100);
 
         java.time.DayOfWeek day = java.time.LocalDate.now().getDayOfWeek();
-        boolean isWeekend = (day == java.time.DayOfWeek.SATURDAY || day == java.time.DayOfWeek.SUNDAY);
-        model.addAttribute("isWeekend", isWeekend);
-
-        model.addAttribute("user", currentUser);
+        model.addAttribute("isWeekend", (day == java.time.DayOfWeek.SATURDAY || day == java.time.DayOfWeek.SUNDAY));
 
         Project activeProject = projectService.getActiveProject(currentUser, session);
-
         if (activeProject == null) {
             return "no-projects";
         }
@@ -69,37 +62,16 @@ public class DashboardController {
         boolean isOwner = activeProject.getOwner() != null && activeProject.getOwner().getId().equals(currentUser.getId());
         model.addAttribute("isProjectOwner", isOwner);
 
-        List<Task> projectTasks = taskRepository.findByProject(activeProject);
+        model.addAttribute("todoTasks", taskService.getTodoTasks(activeProject));
+        model.addAttribute("progressTasks", taskService.getProgressTasks(activeProject));
+        model.addAttribute("reviewTasks", taskService.getReviewTasks(activeProject));
+        model.addAttribute("doneTasks", taskService.getDoneTasks(activeProject));
 
-        model.addAttribute("todoTasks", projectTasks.stream()
-                .filter(t -> "TODO".equals(t.getStatus()))
-                .sorted(Comparator.comparingInt(t -> {
-                    String p = t.getPriority();
-                    if ("HIGH".equals(p)) return 1;
-                    if ("MEDIUM".equals(p)) return 2;
-                    if ("LOW".equals(p)) return 3;
-                    return 4;
-                }))
-                .toList());
-        model.addAttribute("progressTasks", projectTasks.stream()
-                .filter(t -> "IN_PROGRESS".equals(t.getStatus()) || "CHANGES_REQUESTED".equals(t.getStatus()))
-                .toList());
-        model.addAttribute("reviewTasks", projectTasks.stream().filter(t -> "CODE_REVIEW".equals(t.getStatus())).toList());
-        model.addAttribute("doneTasks", projectTasks.stream()
-                .filter(t -> "DONE".equals(t.getStatus()))
-                .sorted(Comparator.comparing(Task::getCompletedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .toList());
+        List<Task> allTasks = taskService.getAllProjectTasks(activeProject);
+        int teamTotalXp = projectService.calculateProjectTotalXp(allTasks);
 
-
-        // gathering all users xp
-        int teamTotalXp = projectService.calculateProjectTotalXp(projectTasks);
-
-        //project level
-        int projectLevel = 1 + (teamTotalXp / 1000);
-        int projectProgress = teamTotalXp % 1000;
-
-        model.addAttribute("projectLevel", projectLevel);
-        model.addAttribute("projectProgress", projectProgress);
+        model.addAttribute("projectLevel", projectService.calculateLevel(teamTotalXp));
+        model.addAttribute("projectProgress", projectService.calculateProgress(teamTotalXp));
 
         return "index";
     }
@@ -136,31 +108,7 @@ public class DashboardController {
                              @RequestParam(required = false) String gitLink,
                              @RequestParam Long projectId,
                              java.security.Principal principal) {
-
-        String username = principal.getName();
-        User currentUser = userRepository.findByUsername(username);
-
-        Project project = currentUser.getProjects().stream()
-                .filter(p -> p.getId().equals(projectId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Project not found or access denied"));
-
-        Task task = new Task();
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setRewardXp(reward);
-        task.setGitLink(gitLink);
-        task.setStatus("TODO");
-        task.setAssignee(currentUser);
-        task.setProject(project);
-
-        if ("HIGH".equals(priority) || "LOW".equals(priority)) {
-            task.setPriority(priority);
-        } else {
-            task.setPriority("MEDIUM");
-        }
-
-        taskRepository.save(task);
+        taskService.createTask(title, description, reward, priority, gitLink, projectId, principal.getName());
         return "redirect:/";
     }
 
@@ -182,10 +130,9 @@ public class DashboardController {
 
     @PostMapping("/task/delete")
     public String deleteTask(@RequestParam Long taskId, jakarta.servlet.http.HttpServletRequest request) {
-        taskRepository.deleteById(taskId);
+        taskService.deleteTask(taskId);
 
         String referer = request.getHeader("Referer");
-
         if (referer == null || referer.isEmpty()) { return "redirect:/"; }
         return "redirect:" + referer;
     }

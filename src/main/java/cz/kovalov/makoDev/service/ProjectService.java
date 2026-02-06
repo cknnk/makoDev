@@ -63,6 +63,7 @@ public class ProjectService {
                 .mapToInt(Task::getRewardXp)
                 .sum();
 
+        // review
         int reviewXp = projectTasks.stream()
                 .filter(t -> "DONE".equals(t.getStatus()))
                 .filter(t -> t.getReviewer() != null)
@@ -75,5 +76,13 @@ public class ProjectService {
                 .sum();
 
         return tasksXp + reviewXp + kudosXp;
+    }
+
+    public int calculateLevel(int totalXp) {
+        return 1 + (totalXp / 1000);
+    }
+
+    public int calculateProgress(int totalXp) {
+        return totalXp % 1000;
     }
 }

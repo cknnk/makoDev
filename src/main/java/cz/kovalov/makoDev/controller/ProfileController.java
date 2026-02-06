@@ -2,8 +2,8 @@ package cz.kovalov.makoDev.controller;
 
 import cz.kovalov.makoDev.data.entity.Task;
 import cz.kovalov.makoDev.data.entity.User;
-import cz.kovalov.makoDev.data.repository.TaskRepository;
 import cz.kovalov.makoDev.data.repository.UserRepository;
+import cz.kovalov.makoDev.service.TaskService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,13 +19,13 @@ import java.util.List;
 public class ProfileController {
 
     private final UserRepository userRepository;
-    private final TaskRepository taskRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TaskService taskService;
 
-    public ProfileController(UserRepository userRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder) {
+    public ProfileController(UserRepository userRepository, PasswordEncoder passwordEncoder, TaskService taskService) {
         this.userRepository = userRepository;
-        this.taskRepository = taskRepository;
         this.passwordEncoder = passwordEncoder;
+        this.taskService = taskService;
     }
 
     @GetMapping("/profile")
@@ -62,26 +62,15 @@ public class ProfileController {
         String currentUsername = principal.getName();
         User currentUser = userRepository.findByUsername(currentUsername);
 
-        int tasksDone = taskRepository.countByAssigneeAndStatus(targetUser, "DONE");
-        int totalKudos = taskRepository.getTotalKudosForUser(targetUser);
+        int tasksDone = taskService.countDoneTasks(targetUser);
+        int totalKudos = taskService.countTotalKudos(targetUser);
         int currentProgress = targetUser.getXp() % 100;
 
         //whose profile is it
         boolean isOwner = targetUser.getId().equals(currentUser.getId());
 
-        List<Task> completedTasks = taskRepository.findByAssigneeAndStatusOrderByIdDesc(targetUser, "DONE");
-        List<Task> reviewedTasks = taskRepository.findByReviewerAndStatusOrderByIdDesc(targetUser, "DONE");
-        List<Task> fullActivityLog = new java.util.ArrayList<>(completedTasks);
-        fullActivityLog.addAll(reviewedTasks);
-        fullActivityLog.sort(java.util.Comparator.comparing(Task::getCompletedAt,
-                java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
-
-        List<Task> displayActivity;
-        if (isOwner) {
-            displayActivity = fullActivityLog;
-        } else {
-            displayActivity = fullActivityLog.stream().limit(5).toList();
-        }
+        List<Task> fullActivityLog = taskService.getActivityLog(targetUser);
+        List<Task> displayActivity = isOwner ? fullActivityLog : fullActivityLog.stream().limit(5).toList();
 
         boolean isUserOnline = false;
         String lastActiveText = "No activity yet";
@@ -106,13 +95,10 @@ public class ProfileController {
         model.addAttribute("user", targetUser);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("isOwner", isOwner);
-
         model.addAttribute("tasksDone", tasksDone);
         model.addAttribute("totalKudos", totalKudos);
         model.addAttribute("currentProgress", currentProgress);
-
         model.addAttribute("activityLog", displayActivity);
-
         model.addAttribute("isUserOnline", isUserOnline);
         model.addAttribute("lastActiveText", lastActiveText);
 
