@@ -140,11 +140,14 @@
                                 </div>
 
                                 <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between align-items-start">
                                         <span class="fw-bold text-dark" style="font-size: 0.9rem;"
-                                              th:text="${task.title}">Task Title</span>
-                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">+<span
-                                                th:text="${task.rewardXp}"></span> XP</span>
+                                              th:text="${task.title}">Task Title
+                                        </span>
+
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill ms-2 flex-shrink-0">
+                                            +<span th:text="${task.rewardXp}"></span> XP
+                                        </span>
                                     </div>
                                     <small class="text-muted" style="font-size: 0.75rem;">
                                         completed by <span
