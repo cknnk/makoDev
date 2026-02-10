@@ -21,6 +21,15 @@
             <label for="password" class="form-label">Password</label>
             <input type="password" id="password" name="password" class="form-control" required>
         </div>
+
+        <div class="mb-3">
+            <label for="inviteCode" class="form-label">Invite Code</label>
+            <input type="text" id="inviteCode" name="inviteCode" class="form-control" placeholder="Ask admin for code" required>
+        </div>
+
+        <div th:if="${param.error_code}" class="alert alert-danger">
+            Wrong Invite Code! Access denied.
+        </div>
         <button type="submit" class="btn btn-success w-100">Register & Start</button>
     </form>
     <div class="text-center mt-3">
