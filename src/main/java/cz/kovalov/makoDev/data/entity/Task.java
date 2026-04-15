@@ -6,7 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -67,5 +69,5 @@ public class Task {
     @OrderBy("createdAt ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private java.util.List<Comment> comments = new java.util.ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 }

@@ -4,6 +4,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-green)
 ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-SSR-darkgreen)
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 
 **MakoDev** is a prototype project management tool designed to **combat developer burnout** and increase team engagement through ethical gamification.
 
@@ -29,9 +30,9 @@ Unlike traditional trackers (Jira, Trello), MakoDev integrates RPG mechanics —
 ---
 
 ### 3. Gamification Details
-| **User Profile** | **Task Details** |
-|:---:|:---:|
-| <img src="docs/profile.png" width="100%"> | <img src="docs/task_small.png" width="100%"> |
+|             **User Profile**              |                 **Task Details**                 |
+|:-----------------------------------------:|:------------------------------------------------:|
+| <img src="docs/profile.png" width="100%"> |   <img src="docs/task_small.png" width="100%">   |
 | *Level progression, stats & activity log* | *Comments, peer reviews, and all needed details* |
 ---
 
@@ -67,39 +68,59 @@ The application is built as a monolithic web application using **Server-Side Ren
 * **Database:** PostgreSQL.
 * **Security:** Spring Security.
 * **Build Tool:** Maven.
+* **Deployment:** Docker & Docker Compose.
 
 ---
 
-## ⚙️ How to Run Locally
+## ⚙️ How to Run (Docker - Recommended)
+
+The easiest way to review the project is by using Docker. The application comes with a pre-configured database populated with test data (tasks, projects, and users) so you can test the social features immediately.
 
 ### Prerequisites
-* JDK 17 or higher
-* Maven
+* Docker & Docker Compose installed.
 
-### 1. Clone the repository
+### Steps to Run
+1. Unzip the project archive and navigate to the root directory in your terminal.
+2. Run the following command to build and start the application:
 ```bash
-git clone https://github.com/cknnk/makoDev.git
-cd MakoDev
+docker-compose up --build -d
+```
+3. Wait approximately 30-60 seconds for the database to initialize and the Spring Boot application to start.
+4. Open your browser and go to: http://localhost:8080
+
+### 👥 Test Accounts (Pre-loaded Data)
+You can log in using any of the following pre-configured accounts to see the gamification system in action from different perspectives:
+
+| Role / Username | Password |
+|:----------------|:---------|
+| **worker1**     | `123`    |
+| **worker2**     | `123`    |
+| **worker3**     | `123`    |
+| **worker4**     | `123`    |
+
+*Note: You can also register a completely new account using the 'Register' page.*
+
+### How to Stop
+To stop the application and remove the containers, run:
+```bash
+docker-compose down
 ```
 
-### 2. Database Configuration
-``` properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/makoDev
-spring.datasource.username=postgres
-spring.datasource.password=your_password
-spring.jpa.hibernate.ddl-auto=update
-```
+### 💻 Alternative: Run Locally (Without Docker)
+If you prefer to run the application directly via Maven (e.g., for development or code review), ensure you have **Java 17**, **Maven**, and a local **PostgreSQL** instance running.
 
-### 3. Build and Run
-``` 
-mvn spring-boot:run
-```
-
-### 4. Access the App
-Open your browser at: http://localhost:8080
-* Register: Create a new account via the /register page.
-* Login: Use your new credentials.
-
+1. **Configure the Database:**
+   Ensure you have a local database named `makoDev` running on port `5432`. Update your `src/main/resources/application.properties` if your local credentials differ:
+   ```properties
+   spring.datasource.url=jdbc:postgresql://localhost:5432/makoDev
+   spring.datasource.username=postgres
+   spring.datasource.password=your_password
+   ```
+2. **Build and Run:**
+   ```bash
+   mvn clean install -DskipTests
+   mvn spring-boot:run
+   ```
 ---
 
 ## 🧪 Project Architecture
