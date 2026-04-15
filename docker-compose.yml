@@ -28,7 +28,6 @@ services:
       PGDATABASE: makoDev
       PGUSER: postgres
       PGPASSWORD: rootpassword
-      INVITE_CODE: admin
     restart: unless-stopped
 
 volumes:
