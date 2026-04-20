@@ -155,7 +155,7 @@ public class ProjectService {
             }
         }
 
-        // Очистка сессии
+        // Clear session
         Long sessionProjectId = (Long) session.getAttribute("activeProjectId");
         if (sessionProjectId != null && sessionProjectId.equals(projectId)) {
             session.removeAttribute("activeProjectId");
